@@ -148,14 +148,15 @@ export class ContentFetcher {
 
     // Fetch and cache Pexels image
     async fetchAndCachePexelsImage(searchTerm) {
-        if (!window.pexelsApiKey) {
+        const result = await chrome.storage.sync.get(['pexelsApiKey']);
+        if (!result.pexelsApiKey) {
             throw new Error('Pexels API key not available');
         }
 
         const url = `${self.CONFIG?.PEXELS_PHOTOS_API || 'https://api.pexels.com/v1/search'}?query=${encodeURIComponent(searchTerm)}&per_page=80&orientation=landscape`;
         
         const response = await fetch(url, {
-            headers: { 'Authorization': window.pexelsApiKey }
+            headers: { 'Authorization': result.pexelsApiKey }
         });
 
         if (!response.ok) {
@@ -186,14 +187,15 @@ export class ContentFetcher {
 
     // Fetch and cache Pexels video
     async fetchAndCachePexelsVideo(searchTerm) {
-        if (!window.pexelsApiKey) {
+        const result = await chrome.storage.sync.get(['pexelsApiKey']);
+        if (!result.pexelsApiKey) {
             throw new Error('Pexels API key not available');
         }
 
         const url = `${self.CONFIG?.PEXELS_VIDEOS_API || 'https://api.pexels.com/videos/search'}?query=${encodeURIComponent(searchTerm)}&per_page=80&orientation=landscape`;
         
         const response = await fetch(url, {
-            headers: { 'Authorization': window.pexelsApiKey }
+            headers: { 'Authorization': result.pexelsApiKey }
         });
 
         if (!response.ok) {
@@ -229,14 +231,15 @@ export class ContentFetcher {
 
     // Fetch and cache Unsplash image
     async fetchAndCacheUnsplashImage(searchTerm) {
-        if (!window.unsplashApiKey) {
+        const result = await chrome.storage.sync.get(['unsplashApiKey']);
+        if (!result.unsplashApiKey) {
             throw new Error('Unsplash API key not available');
         }
 
         const url = `${self.CONFIG?.UNSPLASH_API_URL || 'https://api.unsplash.com/photos/random'}?query=${encodeURIComponent(searchTerm)}&orientation=landscape`;
         
         const response = await fetch(url, {
-            headers: { 'Authorization': `Client-ID ${window.unsplashApiKey}` }
+            headers: { 'Authorization': `Client-ID ${result.unsplashApiKey}` }
         });
 
         if (!response.ok) {
