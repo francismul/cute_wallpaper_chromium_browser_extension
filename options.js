@@ -1,4 +1,4 @@
-// Default settings
+// Settings page functionality for Cute Wallpapers Extension\n// Import cache management classes using ES6 modules\nimport { CacheManager } from './cache-manager.js';\nimport { ContentFetcher } from './content-fetcher.js';\n\n// Default settings
 const DEFAULT_SETTINGS = {
     unsplashApiKey: '',
     pexelsApiKey: '',

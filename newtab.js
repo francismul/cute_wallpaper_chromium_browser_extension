@@ -1,4 +1,8 @@
 // Configuration and API settings
+// Import cache management classes using ES6 modules
+import { CacheManager } from './cache-manager.js';
+import { ContentFetcher } from './content-fetcher.js';
+
 const CONFIG = {
     UNSPLASH_API_URL: 'https://api.unsplash.com/photos/random',
     PEXELS_PHOTOS_API: 'https://api.pexels.com/v1/search',

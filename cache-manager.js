@@ -1,5 +1,5 @@
 // IndexedDB Cache Manager for Cute Wallpapers Extension
-class CacheManager {
+export class CacheManager {
     constructor() {
         this.dbName = 'CuteWallpapersCache';
         this.dbVersion = 1;
@@ -158,6 +158,26 @@ class CacheManager {
                 store.put(item);
             }
         };
+    }
+
+    // Check if cache has any content available (for offline scenarios)
+    async hasContent() {
+        await this.init();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([this.storeName], 'readonly');
+            const store = transaction.objectStore(this.storeName);
+            const request = store.count();
+
+            request.onsuccess = () => {
+                resolve(request.result > 0);
+            };
+
+            request.onerror = () => {
+                console.error('Failed to check cache content:', request.error);
+                resolve(false); // Return false on error to be safe
+            };
+        });
     }
 
     // Get cache statistics
@@ -346,6 +366,11 @@ class CacheManager {
         return stats.total === 0 || 
                stats.valid < 5 || 
                (stats.newestTimestamp && (now - stats.newestTimestamp) > this.FETCH_INTERVAL);
+    }
+
+    // Alias for getCacheStats for API consistency
+    async getStatistics() {
+        return this.getCacheStats();
     }
 }
 

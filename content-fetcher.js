@@ -1,5 +1,5 @@
 // Background Content Fetcher for Cute Wallpapers Extension
-class ContentFetcher {
+export class ContentFetcher {
     constructor(cacheManager) {
         this.cache = cacheManager;
         this.isRunning = false;
@@ -152,7 +152,7 @@ class ContentFetcher {
             throw new Error('Pexels API key not available');
         }
 
-        const url = `${window.CONFIG.PEXELS_PHOTOS_API}?query=${encodeURIComponent(searchTerm)}&per_page=80&orientation=landscape`;
+        const url = `${self.CONFIG?.PEXELS_PHOTOS_API || 'https://api.pexels.com/v1/search'}?query=${encodeURIComponent(searchTerm)}&per_page=80&orientation=landscape`;
         
         const response = await fetch(url, {
             headers: { 'Authorization': window.pexelsApiKey }
@@ -190,7 +190,7 @@ class ContentFetcher {
             throw new Error('Pexels API key not available');
         }
 
-        const url = `${window.CONFIG.PEXELS_VIDEOS_API}?query=${encodeURIComponent(searchTerm)}&per_page=80&orientation=landscape`;
+        const url = `${self.CONFIG?.PEXELS_VIDEOS_API || 'https://api.pexels.com/videos/search'}?query=${encodeURIComponent(searchTerm)}&per_page=80&orientation=landscape`;
         
         const response = await fetch(url, {
             headers: { 'Authorization': window.pexelsApiKey }
@@ -233,7 +233,7 @@ class ContentFetcher {
             throw new Error('Unsplash API key not available');
         }
 
-        const url = `${window.CONFIG.UNSPLASH_API_URL}?query=${encodeURIComponent(searchTerm)}&orientation=landscape`;
+        const url = `${self.CONFIG?.UNSPLASH_API_URL || 'https://api.unsplash.com/photos/random'}?query=${encodeURIComponent(searchTerm)}&orientation=landscape`;
         
         const response = await fetch(url, {
             headers: { 'Authorization': `Client-ID ${window.unsplashApiKey}` }
