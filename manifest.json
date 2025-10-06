@@ -5,9 +5,11 @@
   "description": "Display beautiful cute wallpapers from Unsplash and inspirational quotes on every new tab",
   
   "permissions": [
-    "storage",
+   "storage",
     "contextMenus",
-    "notifications"
+    "alarms",
+    "notifications",
+    "tabs"
   ],
   
   "optional_permissions": [
@@ -25,7 +27,8 @@
   },
   
   "background": {
-    "service_worker": "./background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   
   "options_page": "options.html",
