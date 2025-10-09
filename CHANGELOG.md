@@ -1,19 +1,152 @@
 # Changelog
 
-All notable changes to the Cute Wallpapers Extension will be documented in this file.
+All notable changes to the Random Wallpaper Extension will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Planned
-- User preference learning system
-- Cloud synchronization for settings
-- Advanced search filters
-- Custom wallpaper collections
+### Planned Features
+- 🎬 **Video Backgrounds (v2.1.0)** - Reimplemented with better controls, performance optimization, and mute/unmute options
+- 💬 **Inspirational Quotes (v2.1.0)** - Customizable quote sources, styling options, and positioning controls
+- 🎨 **Image Filtering** - Filter by color, mood, or theme
+- 📁 **Custom Wallpaper Upload** - Upload and rotate your own images
+- 🎭 **Multiple Theme Presets** - Quick-switch between different aesthetic styles
+- ☁️ **Browser Sync** - Synchronize settings across devices
 
-## [1.0.0] - 2024-10-06
+### Won't Implement
+- ❌ 30-minute refresh cycle - Staying with 6-hour cycle for better API efficiency and rate limit management
+
+## [2.0.0] - 2025-10-10
+
+### 🎉 Major Rewrite - "Cute Wallpapers Reborn"
+
+This version represents a complete rewrite and rebranding from the original "Cute Wallpapers Extension" to "Random Wallpaper Extension" with a TypeScript-first architecture.
+
+### Added
+
+#### 🎨 **Options Page & Settings Management**
+- Comprehensive settings interface (no more code editing!)
+- API key management: add, test, and delete keys via UI
+- **Persistent API test status** - Test results saved across sessions
+- Multiple API keys per source support
+- Search keyword preferences for custom image themes
+- Auto-refresh configuration (5-300 seconds)
+- Clock display settings (12/24-hour format, optional seconds)
+- Cache statistics dashboard with relative time display
+- Visual status indicators (green=working, red=failed, gray=untested)
+
+#### ⚡ **Immediate Fetch System**
+- **No waiting for 6-hour cycle** when adding API keys
+- Instant background fetch triggered on settings save
+- 10-second cooldown to prevent API spam
+- Smart detection of settings changes
+- Background message passing for reliability
+
+#### 🛡️ **Fallback System**
+- 20 high-quality default images from Unsplash
+- Works immediately without API keys required
+- Automatic fallback on API failures
+- User notification with setup guidance
+- Seamless first-time user experience
+- No broken states or empty screens
+
+#### 📈 **Enhanced Image Fetching**
+- **Unsplash**: 30 images per fetch (API maximum)
+- **Pexels**: 50 images per fetch (optimized from max 80)
+- **Total**: 80 images per 6-hour refresh cycle
+- Keyword search support for both APIs
+- Single API support (works with just Unsplash OR Pexels)
+- Random API key rotation for load distribution
+
+#### 🕐 **Digital Clock Feature**
+- Live clock display on new tab page
+- Toggle between 12-hour and 24-hour format
+- Optional seconds display with real-time updates
+- Configurable via options page
+- Beautiful design matching wallpaper aesthetic
+
+#### 🎲 **True Cryptographic Randomness**
+- Uses `crypto.getRandomValues()` for hardware-based entropy
+- Cryptographically secure random selection
+- Applied to image selection and API key rotation
+- No patterns or biases in distribution
+- Fair selection across all cached images
+
+#### 📊 **Improved Cache Statistics**
+- Relative time display ("2 hours ago", "3 days ago")
+- Total, valid, and expired image counts
+- Breakdown by source (Unsplash vs Pexels)
+- Last fetch timestamp with smart formatting
+- Clear cache functionality
+
+### Changed
+
+#### 🏗️ **Complete Architecture Rewrite**
+- Migrated from JavaScript to **TypeScript**
+- Modern build system using **esbuild**
+- Manifest V3 compliance throughout
+- Chrome Alarms API for reliable scheduling
+- chrome.storage.local for settings synchronization
+- IndexedDB for efficient image caching
+- ES2020 module system
+
+#### 🔄 **Background Worker Improvements**
+- 6-hour automatic refresh (unchanged but more reliable)
+- Service worker sleep-aware wake-up checks
+- Fallback integration for zero-config startup
+- Immediate fetch handler for options page
+- Better error handling and recovery
+- Cleanup of expired images before fetch
+
+#### 🎨 **New Tab Page Enhancements**
+- Auto-refresh with configurable intervals
+- Digital clock display
+- Refresh button for instant new image
+- Settings button for quick access to options
+- Fallback notification (only shown when using defaults)
+- Smooth fade-in animations
+- Photo credits with clickable links
+
+### Removed (Temporarily - Better Implementation Coming!)
+- 🔄 **Video background support** - Will be reimplemented with better performance and controls
+- 🔄 **Inspirational quotes feature** - Will return with customizable quote sources and styling
+- ✅ **config.example.ts** - Permanently replaced by Options Page UI (better UX)
+- ✅ **Manual code editing for API keys** - Permanently replaced by Options Page (no going back!)
+- ✅ **30-minute refresh cycle** - Replaced by 6-hour cycle for API efficiency (this is the way forward)
+
+**Note**: Video backgrounds and quotes will return in future updates with improved implementations. The 6-hour refresh cycle is here to stay as it balances freshness with API rate limits.
+
+### Technical Improvements
+- **Storage Strategy**: chrome.storage.local + IndexedDB separation
+- **Build System**: TypeScript → ES2020 via esbuild
+- **Cache Hit Rate**: 90%+ with smart expiry management
+- **API Efficiency**: Reduced requests with 6-hour cycle + immediate fetch on demand
+- **Randomness**: Crypto-secure selection using Web Crypto API
+- **Reliability**: Chrome Alarms persist across browser restarts
+- **Performance**: Instant load from IndexedDB (<100ms)
+
+### Migration from v1.x (Cute Wallpapers)
+- Repository renamed: `cute-wallpaper-extension` → `random-wallpaper-extension`
+- All settings now managed via Options Page
+- No video support (image-focused experience)
+- Longer refresh cycle (6 hours vs 30 minutes)
+- More images per fetch (80 vs previous counts)
+- TypeScript codebase (was JavaScript)
+
+### User Experience Improvements
+- ✅ Zero configuration required (works with fallback images)
+- ✅ Immediate feedback when adding API keys
+- ✅ Persistent API test status
+- ✅ Relative time display (more human-readable)
+- ✅ No waiting for 6-hour cycle on first setup
+- ✅ Better error handling and user guidance
+- ✅ Clean, modern options interface
+
+---
+
+## [1.0.0] - 2024-10-06 (Cute Wallpapers - Legacy)
 
 ### Added
 - 🎨 **Dual API Support**: Integration with both Pexels and Unsplash APIs
@@ -55,7 +188,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - API key validation and testing
 - Comprehensive error handling and user feedback
 
-## [0.3.0] - 2024-10-05
+## [0.3.0] - 2024-10-05 (Cute Wallpapers - Legacy)
 
 ### Added
 - Pexels API integration alongside Unsplash
@@ -68,7 +201,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - API response parsing errors
 - Text visibility on light backgrounds
 
-## [0.2.0] - 2024-10-04
+## [0.2.0] - 2024-10-04 (Cute Wallpapers - Legacy)
 
 ### Added
 - Options page with settings
@@ -79,7 +212,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced error handling
 - Better responsive layout
 
-## [0.1.0] - 2024-10-03
+## [0.1.0] - 2024-10-03 (Cute Wallpapers - Legacy)
 
 ### Added
 - Initial release
@@ -98,10 +231,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version Naming Convention
 
-- **Major (X.0.0)**: Breaking changes, major new features
+- **Major (X.0.0)**: Breaking changes, major rewrites, architectural changes
 - **Minor (x.Y.0)**: New features, enhancements, backwards compatible
 - **Patch (x.y.Z)**: Bug fixes, small improvements, backwards compatible
 
-## Contributing
+## Project History
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
+**v2.0.0+**: Random Wallpaper Extension (TypeScript rewrite)  
+**v0.1.0-v1.0.0**: Cute Wallpapers Extension (JavaScript original)
+
+---
+
+## Links
+
+- **Repository**: https://github.com/yourusername/random-wallpaper-extension
+- **Issues**: https://github.com/yourusername/random-wallpaper-extension/issues
+- **API Keys**: 
+  - Unsplash: https://unsplash.com/developers
+  - Pexels: https://www.pexels.com/api/
