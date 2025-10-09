@@ -1,286 +1,183 @@
-# 🌸 Cute Wallpapers - Advanced Browser Extension
+# Random Wallpaper Extension
 
-A high-performance browser extension that transforms your new tab page into a delightful experience with cute wallpapers from Pexels and Unsplash, featuring advanced caching for instant loading and offline support.
+A TypeScript-based browser extension I built that displays beautiful random wallpapers from Unsplash and Pexels on every new tab. It features a comprehensive settings page, smart caching, and works even without API keys!
 
 ## ✨ Features
 
-### 🎨 **Beautiful Content**
-- **Dual API Support**: High-quality images and videos from Pexels (70%) and Unsplash (30%)
-- **Video Backgrounds**: Stunning video wallpapers from Pexels with smooth playback
-- **Smart Content Mix**: 30% videos, 70% images for optimal variety
-- **Inspirational Quotes**: Motivational quotes to brighten your day
+- 🖼 **Dual API Integration**: Fetches high-quality images from both Unsplash and Pexels (80 images per refresh!)
+- ⚙️ **Options Page**: Full-featured settings interface for managing API keys, preferences, and cache
+- 🔑 **Flexible API Keys**: Add multiple keys per source, test them, and even use just one API if you prefer
+- �️ **Smart Fallback**: 20 beautiful default images when no API keys are configured
+- 🔍 **Search Keywords**: Customize image themes for each API source
+- �💾 **Smart Caching**: Stores images in IndexedDB for offline access
+- ⏳ **Auto Expiry**: Images expire after 24 hours to keep content fresh
+- 🔁 **Automatic Refresh**: Fetches new images every 6 hours in the background
+- 🔄 **Auto-Refresh Display**: Optional auto-rotating images on new tab (5-300s intervals)
+- 🕐 **Clock Display**: Beautiful clock with date, 12/24hr format, and optional seconds
+- 🎲 **True Random Selection**: Uses Web Crypto API for cryptographically secure randomness
+- ⚡ **Fast Loading**: All images served from local cache
+- 📊 **Cache Statistics**: Real-time stats showing total, valid, expired images by source
+- 🎨 **Beautiful UI**: Clean, modern interface with smooth transitions
 
-### ⚡ **Performance & Caching**
-- **Lightning Fast**: Instant loading with advanced IndexedDB caching
-- **Offline Support**: Works without internet connection using cached content
-- **Smart Background Fetching**: Automatically maintains fresh content pool
-- **Cache Management**: Intelligent cleanup and storage optimization
+## 🚀 Setup Instructions
 
-### 🎛️ **Customization**
-- **Search Functionality**: Find specific types of wallpapers
-- **Auto-refresh**: Automatically change wallpapers at set intervals
-- **Cache Controls**: Configure cache duration, size, and fetch intervals
-- **Privacy-focused**: API keys stored locally and securely
+### 1. Build the Extension
 
-### 📱 **User Experience**
-- **Responsive Design**: Perfect on all screen sizes
-- **Enhanced Text Visibility**: Smart shadows and overlays for readability
-- **Seamless Integration**: Clean, beautiful new tab replacement
-- **Real-time Statistics**: Monitor cache performance and content stats
+First, build the extension (you can add API keys later through the options page):
 
-## 🚀 Installation
-
-### Method 1: Load Unpacked Extension (Development)
-
-1. Clone or download this repository
-2. Open Brave browser
-3. Navigate to `brave://extensions/`
-4. Enable "Developer mode" in the top right
-5. Click "Load unpacked" and select the extension folder
-6. The extension will be installed and ready to use!
-
-### Method 2: Chrome Web Store (Future)
-*This extension will be available on the Chrome Web Store soon.*
-
-## 🔧 Setup & Configuration
-
-### 1. Get API Keys (Free)
-
-#### **Pexels API (Recommended - Higher Limits)**
-1. Visit [Pexels API](https://www.pexels.com/api/)
-2. Create a free account
-3. Get your API key (200 requests/hour, 5000/month)
-
-#### **Unsplash API (Backup)**
-1. Visit [Unsplash Developers](https://unsplash.com/developers)
-2. Create a developer account
-3. Create a new application
-4. Copy your Access Key (50 requests/hour)
-
-### 2. Configure Extension
-1. After installation, right-click the extension icon → "Options"
-2. Enter your API keys:
-   - **Pexels API Key**: Primary source (70% of content)
-   - **Unsplash API Key**: Backup source (30% of content)
-3. Test both APIs using the "Test" buttons
-4. Save your settings
-5. Enjoy instant beautiful wallpapers!
-
-### 3. Cache Configuration (Optional)
-- **Enable Caching**: For instant loading and offline support
-- **Cache Duration**: How long to keep content (default: 15 minutes)
-- **Fetch Interval**: How often to get new content (default: 30 minutes)
-- **Cache Size**: Maximum items to store (default: 100 items)
-
-## � Usage
-
-### Basic Usage
-- Open a new tab to see a beautiful wallpaper and quote
-- Press `R` to refresh and get a new wallpaper
-- Press `/` to focus on the search box
-- Press `Escape` to close the search box
-
-### Features
-- **Refresh Button**: Click the refresh icon to get a new wallpaper
-- **Search**: Type keywords to find specific types of wallpapers
-- **Settings**: Click the gear icon to open settings
-- **Image Credit**: See photographer information at the bottom
-
-### Keyboard Shortcuts
-- `R` - Refresh wallpaper
-- `/` - Focus search box
-- `Escape` - Close search box
-- `Ctrl+S` - Save settings (in options page)
-
-## 📁 File Structure
-
-```
-cute-wallpapers-extension/
-├── manifest.json          # Extension configuration
-├── newtab.html            # New tab page layout
-├── newtab.js              # Main functionality & cache integration
-├── styles.css             # Styling, animations & video support
-├── options.html           # Settings page with cache controls
-├── options.js             # Settings & cache management
-├── popup.html             # Extension popup
-├── popup.js               # Popup functionality
-├── background.js          # Service worker
-├── cache-manager.js       # IndexedDB cache engine
-├── content-fetcher.js     # Background content fetching
-├── icons/                 # Extension icons
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
-└── docs/                  # Documentation
-    ├── CACHING_SYSTEM.md
-    ├── PEXELS_INTEGRATION.md
-    └── SETUP_INSTRUCTIONS.md
-```
-
-## 🏗️ Technical Architecture
-
-### **Cache System**
-- **IndexedDB Storage**: Efficient browser-native storage
-- **Smart Expiration**: 15-minute default with configurable duration
-- **LRU Eviction**: Removes least recently used items when full
-- **Background Fetching**: Maintains 20+ items ready for instant use
-
-### **API Integration** 
-- **Dual Source**: Pexels (70% weight) + Unsplash (30% weight)
-- **Rate Limiting**: Built-in delays and error handling
-- **Content Balance**: 30% videos, 70% images from Pexels
-- **Graceful Fallbacks**: Cache → API → Demo content
-
-### **Performance**
-- **Cache-First Loading**: 0ms load time for cached content
-- **Background Processing**: Fetches content every 30 minutes
-- **Offline Support**: Works without internet connection
-- **90%+ Cache Hit Rate**: After initial warming period
-├── background.js          # Background script
-├── icons/                 # Extension icons
-│   ├── icon16.png
-│   ├── icon32.png
-│   ├── icon48.png
-│   ├── icon128.png
-│   └── generate_icons.py  # Icon generator script
-└── README.md              # This file
-```
-
-## 🛠️ Development
-
-### Prerequisites
-- Brave or Chrome browser
-- Text editor (VS Code recommended)
-- Python 3.x (for icon generation)
-
-### Local Development
-1. Clone the repository
-2. Make your changes
-3. Load the extension in developer mode
-4. Test your changes
-5. Reload the extension after modifications
-
-### Building Icons
 ```bash
-cd icons/
-python3 generate_icons.py
+# Install dependencies
+npm install
+
+# Build the extension
+npm run build
 ```
 
-### API Integration
-The extension uses:
-- **Unsplash API**: For high-quality wallpapers
-- **Quotable API**: For inspirational quotes
+### 2. Load in Browser
 
-## 🔐 Privacy & Security
+#### Chrome/Edge
+1. Open `chrome://extensions/`
+2. Enable "Developer mode"
+3. Click "Load unpacked"
+4. Select the `dist` folder
 
-- **Local Storage**: All settings are stored locally in your browser
-- **API Keys**: Your Unsplash API key is stored securely and never shared
-- **No Tracking**: We don't collect or transmit any personal data
-- **HTTPS Only**: All API requests use secure HTTPS connections
+#### Firefox
+1. Open `about:debugging#/runtime/this-firefox`
+2. Click "Load Temporary Add-on"
+3. Select the `manifest.json` file in the `dist` folder
 
-## 🎨 Customization
+### 3. Configure API Keys (Optional)
 
-### Search Terms
-You can customize the types of wallpapers by modifying search terms in settings:
-- `cute, adorable, kawaii` - For cute imagery
-- `nature, landscape, forest` - For nature scenes
-- `animals, pets, cats, dogs` - For animal photos
-- `flowers, botanical, garden` - For floral images
+The extension works immediately with 20 beautiful fallback images! For fresh daily content:
 
-### Auto-Refresh
-Configure automatic wallpaper changes:
-- Every 15 minutes
-- Every 30 minutes (default)
-- Every hour
-- Every 2 hours
-- Every 6 hours
+#### Get API Keys (Both Free!)
+- **Unsplash**: [https://unsplash.com/developers](https://unsplash.com/developers) - Create app, copy Access Key
+- **Pexels**: [https://www.pexels.com/api/](https://www.pexels.com/api/) - Sign up, copy API Key
 
-## 🐛 Troubleshooting
+#### Add Keys via Options Page
 
-### Common Issues
+1. Right-click the extension icon → **Options** (or click the ⚙️ button on new tab)
+2. Add your API keys in the settings
+3. Click "Test" to verify they work
+4. Configure search keywords (optional)
+5. Set up auto-refresh preferences (optional)
+6. Save changes
 
-**"No wallpaper loading"**
-- Check your internet connection
-- Verify your Unsplash API key in settings
-- Try refreshing the page
+**The extension fetches images immediately when you add API keys!** No need to wait for the 6-hour cycle.
 
-**"API key not working"**
-- Make sure you copied the "Access Key" (not the "Secret Key")
-- Check that your Unsplash application is active
-- Verify the key format (should be 43 characters)
+## 📖 How It Works
 
-**"Extension not loading"**
-- Ensure developer mode is enabled
-- Try reloading the extension
-- Check the browser console for errors
+### Background Service Worker
+- **On Install**: Initializes IndexedDB and loads fallback images
+- **When API Keys Added**: Immediately fetches fresh images (no waiting!)
+- **Every 6 Hours**: Automatically fetches new images via Chrome Alarms API
+- **On Startup**: Checks if last fetch was >6 hours ago and refreshes if needed
+- **Smart Scheduling**: Uses alarms to work even when service worker is asleep
+- **Fallback System**: Uses 20 default images when no API keys configured
 
-**"Search not working"**
-- Make sure you have a valid API key
-- Try different search terms
-- Check your internet connection
+### Image Fetching Strategy
+- **Unsplash**: Fetches 30 images (API maximum)
+- **Pexels**: Fetches 50 images (optimized for variety)
+- **Total**: Up to 80 images per refresh cycle!
+- **Single API**: Works with just Unsplash OR Pexels (30-50 images)
+- **Keywords**: Optional search terms to customize image themes
+- **Storage**: All stored in IndexedDB with metadata (source, author, URL, timestamps)
+- **Expiry**: Each image expires after 24 hours, cleaned automatically
 
-### Debug Mode
-Open browser developer tools (F12) and check the console for error messages.
+### New Tab Display
+- **Always from Cache**: Never fetches directly from APIs (instant loading!)
+- **True Random**: Uses crypto-secure `crypto.getRandomValues()` for selection
+- **Refresh Button**: Gets a different random image from the existing cache
+- **Auto-Refresh**: Optional timer to rotate images (configurable 5-300 seconds)
+- **Clock Display**: Shows current time and date with customizable format
+- **Smooth Transitions**: Images fade in beautifully with CSS animations
+- **Photo Credits**: Displays photographer name and source with links
 
-## 📝 API Limits
+### Settings Sync
+- Settings stored in `chrome.storage.local`
+- Changes apply instantly across all tabs
+- Survives extension updates and browser restarts
+- API key test results persist
 
-### Unsplash API (Free Tier)
-- 50 requests per hour
-- 5,000 requests per month
-- Perfect for personal use
+## 🛠 Development
 
-### Quotable API
-- No authentication required
-- No rate limits for reasonable usage
+### Watch Mode
+```bash
+npm run watch
+```
 
-## 🤝 Contributing
+### Project Structure
+```
+src/
+├── background.ts          # Service worker (periodic fetching, immediate fetch on key add)
+├── manifest.json          # Extension manifest
+├── newTab.html           # New tab page UI
+├── options.html          # Settings page UI
+├── content/
+│   ├── api.ts            # Unsplash/Pexels API integration (80 images!)
+│   ├── db.ts             # IndexedDB wrapper
+│   ├── newTab.ts         # New tab page logic (auto-refresh, clock)
+│   └── fallback.ts       # 20 default wallpapers
+├── options.ts            # Settings page logic (API testing, stats)
+└── utils/
+    └── random.ts         # Crypto-random utilities
+```
 
-We welcome contributions! Here's how you can help:
+### Technologies Used
+- **TypeScript**: Type-safe development
+- **esbuild**: Fast bundling to vanilla JS
+- **IndexedDB**: Client-side image storage (up to 80 images)
+- **chrome.storage.local**: Settings synchronization
+- **Web Crypto API**: Cryptographically secure random number generation
+- **Chrome Extension APIs**: Alarms, Storage, Runtime
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## 🎯 Key Behaviors
 
-### Ideas for Contributions
-- Additional quote sources
-- More search categories
-- Improved UI/UX
-- Performance optimizations
-- New customization options
+### Immediate Fetch on API Key Addition
+When you add API keys through the options page:
+1. Background worker fetches images immediately
+2. Updates last fetch timestamp
+3. New tab shows fresh images right away
+4. Then waits for the regular 6-hour cycle
+
+### Service Worker Sleep Management
+The service worker may sleep when the browser is idle. When it wakes up:
+1. Checks `lastFetch` timestamp from IndexedDB
+2. Compares with current time
+3. If >6 hours have passed, triggers a fresh API fetch
+4. Otherwise, uses existing cached images
+
+### Fallback System
+- **No API Keys**: Uses 20 beautiful default images
+- **Single API**: Works perfectly with just Unsplash OR Pexels
+- **API Failure**: Falls back to cached images or defaults
+- **First Run**: Shows fallback images with notification to configure keys
+
+### Image Refresh Logic
+- **Immediate**: When API keys are added/updated
+- **Automatic**: Background process every 6 hours
+- **Manual**: Click refresh button (uses existing cache)
+- **Auto-Rotate**: Optional timer on new tab (5-300s intervals)
+
+## 📝 Notes
+
+- **API Limits**: Unsplash (50 req/hr), Pexels (200 req/hr) - I stay well within limits
+- **Refresh Interval**: 6-hour cycle keeps you under rate limits
+- **Storage**: URLs only (not blobs) to save space (~16KB for 80 images)
+- **Persistence**: API keys and settings survive extension updates
+- **Privacy**: Your API keys never leave your browser
+- **Offline**: Works perfectly offline after initial fetch
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT
 
-## 🙏 Acknowledgments
+## 🤝 Contributing
 
-- [Unsplash](https://unsplash.com) - For providing beautiful, free-to-use photos
-- [Quotable](https://quotable.io) - For inspirational quotes API
-- All the amazing photographers who share their work on Unsplash
-
-## 📞 Support
-
-If you encounter any issues or have questions:
-
-1. Check the troubleshooting section above
-2. Open an issue on GitHub
-3. Make sure to include:
-   - Browser version
-   - Extension version
-   - Error messages (if any)
-   - Steps to reproduce the issue
-
-## 🔄 Changelog
-
-### Version 1.0.0
-- Initial release
-- Unsplash integration
-- Quote display
-- Search functionality
-- Auto-refresh options
-- Responsive design
-- Settings page
+Feel free to submit issues or pull requests!
 
 ---
+
+**Enjoy your beautiful new tab experience! 🎨✨**
+
+*Built with TypeScript, love, and a passion for beautiful wallpapers.*
