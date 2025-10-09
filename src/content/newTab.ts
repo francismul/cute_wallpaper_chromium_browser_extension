@@ -103,10 +103,16 @@ function showError(message: string) {
   errorDiv.innerHTML = `
     <p>${message}</p>
     <p style="margin-top: 10px; font-size: 14px; opacity: 0.8;">
-      Please configure your API keys in <code>src/content/api.ts</code>
+      <a href="#" id="openOptionsFromError" style="color: #4da6ff; text-decoration: underline;">Configure API keys</a> to get fresh wallpapers!
     </p>
   `;
   document.body.appendChild(errorDiv);
+  
+  // Handle settings link
+  document.getElementById('openOptionsFromError')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    chrome.runtime.openOptionsPage();
+  });
 }
 
 /**

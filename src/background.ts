@@ -13,10 +13,14 @@ import {
   getAllValidImages
 } from './content/db.js';
 import { getFallbackImages, shouldUseFallbackImages } from './content/fallback.js';
+import { 
+  REFRESH_INTERVAL_HOURS, 
+  REFRESH_INTERVAL_MS, 
+  ALARM_NAME,
+  IMMEDIATE_FETCH_COOLDOWN_MS
+} from './config/constants.js';
 
-const REFRESH_INTERVAL_HOURS = 6;
-const REFRESH_INTERVAL_MS = REFRESH_INTERVAL_HOURS * 60 * 60 * 1000;
-const ALARM_NAME = 'refreshImages';
+let lastManualFetch = 0; // Track last manual fetch to prevent spam
 
 /**
  * Check if it's time to refresh images
@@ -201,7 +205,24 @@ chrome.runtime.onMessage.addListener((
   }
 
   if (message.action === 'apiKeysUpdated') {
-    console.log('API keys updated, fetching images immediately...');
+    console.log('API keys updated, checking cooldown...');
+    
+    const now = Date.now();
+    const timeSinceLastManualFetch = now - lastManualFetch;
+    
+    // Prevent spam: 10-second cooldown
+    if (timeSinceLastManualFetch < IMMEDIATE_FETCH_COOLDOWN_MS) {
+      console.log(`Cooldown active. Please wait ${Math.ceil((IMMEDIATE_FETCH_COOLDOWN_MS - timeSinceLastManualFetch) / 1000)}s`);
+      sendResponse({ 
+        success: false, 
+        error: 'Please wait a few seconds before fetching again' 
+      });
+      return false;
+    }
+    
+    lastManualFetch = now;
+    console.log('Fetching images immediately...');
+    
     refreshImages().then(() => {
       sendResponse({ success: true });
     }).catch((error) => {
@@ -215,4 +236,3 @@ chrome.runtime.onMessage.addListener((
 });
 
 console.log('Background service worker loaded');
- 

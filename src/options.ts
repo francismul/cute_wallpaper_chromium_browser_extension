@@ -3,6 +3,15 @@
  */
 
 import { getAllValidImages, getLastFetchTime, clearAllImages } from './content/db.js';
+import { 
+  DEFAULT_AUTO_REFRESH_INTERVAL,
+  MIN_AUTO_REFRESH_INTERVAL,
+  MAX_AUTO_REFRESH_INTERVAL,
+  DEFAULT_CLOCK_ENABLED,
+  DEFAULT_CLOCK_FORMAT_24H,
+  DEFAULT_CLOCK_SHOW_SECONDS,
+  DEFAULT_CLOCK_SHOW_DATE
+} from './config/constants.js';
 
 interface Settings {
   apiKeys: {
@@ -43,13 +52,13 @@ const DEFAULT_SETTINGS: Settings = {
   },
   autoRefresh: {
     enabled: false,
-    interval: 30
+    interval: DEFAULT_AUTO_REFRESH_INTERVAL
   },
   clock: {
-    enabled: true,
-    format24: false,
-    showSeconds: true,
-    showDate: true
+    enabled: DEFAULT_CLOCK_ENABLED,
+    format24: DEFAULT_CLOCK_FORMAT_24H,
+    showSeconds: DEFAULT_CLOCK_SHOW_SECONDS,
+    showDate: DEFAULT_CLOCK_SHOW_DATE
   }
 };
 

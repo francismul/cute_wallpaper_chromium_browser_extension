@@ -3,15 +3,12 @@
  */
 
 import { ImageData } from './db.js';
-
-// Unsplash allows max 30 images per request
-const UNSPLASH_IMAGES_COUNT = 30;
-
-// Pexels allows max 80, we'll fetch 50 for a good balance
-const PEXELS_IMAGES_COUNT = 50;
-
-// Total images fetched per refresh: 80 (30 Unsplash + 50 Pexels)
-const EXPIRY_HOURS = 24;
+import { getRandomIndex } from '../utils/random.js';
+import { 
+  UNSPLASH_IMAGES_COUNT, 
+  PEXELS_IMAGES_COUNT, 
+  IMAGE_EXPIRY_HOURS 
+} from '../config/constants.js';
 
 interface Settings {
   apiKeys: {
@@ -39,11 +36,12 @@ async function getSettings(): Promise<Settings> {
 }
 
 /**
- * Get random API key for a source
+ * Get random API key for a source using cryptographic randomness
  */
 function getRandomKey(keys: string[]): string | null {
   if (keys.length === 0) return null;
-  return keys[Math.floor(Math.random() * keys.length)] || null;
+  const randomIndex = getRandomIndex(keys.length);
+  return keys[randomIndex] || null;
 }
 
 /**
@@ -57,7 +55,8 @@ async function fetchUnsplashImages(apiKey: string, keywords?: string): Promise<I
     if (keywords) {
       const keywordList = keywords.split(',').map(k => k.trim()).filter(k => k);
       if (keywordList.length > 0) {
-        const randomKeyword = keywordList[Math.floor(Math.random() * keywordList.length)];
+        const randomIndex = getRandomIndex(keywordList.length);
+        const randomKeyword = keywordList[randomIndex];
         url += `&query=${encodeURIComponent(randomKeyword!)}`;
       }
     }
@@ -72,7 +71,7 @@ async function fetchUnsplashImages(apiKey: string, keywords?: string): Promise<I
 
     const data = await response.json();
     const now = Date.now();
-    const expiresAt = now + (EXPIRY_HOURS * 60 * 60 * 1000);
+    const expiresAt = now + (IMAGE_EXPIRY_HOURS * 60 * 60 * 1000);
 
     return data.map((photo: any) => ({
       id: `unsplash_${photo.id}`,
@@ -100,14 +99,16 @@ async function fetchPexelsImages(apiKey: string, keywords?: string): Promise<Ima
     if (keywords) {
       const keywordList = keywords.split(',').map(k => k.trim()).filter(k => k);
       if (keywordList.length > 0) {
-        const randomKeyword = keywordList[Math.floor(Math.random() * keywordList.length)];
-        // Pexels allows up to 80 per page, we fetch 50
+        const randomIndex = getRandomIndex(keywordList.length);
+        const randomKeyword = keywordList[randomIndex];
         url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(randomKeyword!)}&per_page=${PEXELS_IMAGES_COUNT}&orientation=landscape`;
       } else {
-        url = `https://api.pexels.com/v1/curated?per_page=${PEXELS_IMAGES_COUNT}&page=${Math.floor(Math.random() * 10) + 1}`;
+        const randomPage = getRandomIndex(10) + 1; // Random page 1-10
+        url = `https://api.pexels.com/v1/curated?per_page=${PEXELS_IMAGES_COUNT}&page=${randomPage}`;
       }
     } else {
-      url = `https://api.pexels.com/v1/curated?per_page=${PEXELS_IMAGES_COUNT}&page=${Math.floor(Math.random() * 10) + 1}`;
+      const randomPage = getRandomIndex(10) + 1; // Random page 1-10
+      url = `https://api.pexels.com/v1/curated?per_page=${PEXELS_IMAGES_COUNT}&page=${randomPage}`;
     }
 
     const response = await fetch(url, {
@@ -120,7 +121,7 @@ async function fetchPexelsImages(apiKey: string, keywords?: string): Promise<Ima
 
     const data = await response.json();
     const now = Date.now();
-    const expiresAt = now + (EXPIRY_HOURS * 60 * 60 * 1000);
+    const expiresAt = now + (IMAGE_EXPIRY_HOURS * 60 * 60 * 1000);
 
     return data.photos.map((photo: any) => ({
       id: `pexels_${photo.id}`,
