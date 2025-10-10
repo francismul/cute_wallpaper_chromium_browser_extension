@@ -1,4 +1,5 @@
 # Random Wa- 💾 **True Offline Mode**: Downloads and stores complete image blobs in IndexedDB (~160-400MB)
+
 - 🌐 **Works Without Internet**: All images cached locally, displays work completely offline
 - ⏳ **Auto Expiry**: Images expire after 24 hours to keep content fresh
 - 🔁 **Automatic Refresh**: Fetches new images every 6 hours in the backgroundaper Extension
@@ -39,12 +40,14 @@ npm run build
 ### 2. Load in Browser
 
 #### Chrome/Edge
+
 1. Open `chrome://extensions/`
 2. Enable "Developer mode"
 3. Click "Load unpacked"
 4. Select the `dist` folder
 
 #### Firefox
+
 1. Open `about:debugging#/runtime/this-firefox`
 2. Click "Load Temporary Add-on"
 3. Select the `manifest.json` file in the `dist` folder
@@ -54,6 +57,7 @@ npm run build
 The extension works immediately with 20 beautiful fallback images! For fresh daily content:
 
 #### Get API Keys (Both Free!)
+
 - **Unsplash**: [https://unsplash.com/developers](https://unsplash.com/developers) - Create app, copy Access Key
 - **Pexels**: [https://www.pexels.com/api/](https://www.pexels.com/api/) - Sign up, copy API Key
 
@@ -71,6 +75,7 @@ The extension works immediately with 20 beautiful fallback images! For fresh dai
 ## 📖 How It Works
 
 ### Background Service Worker
+
 - **On Install**: Initializes IndexedDB and loads fallback images
 - **When API Keys Added**: Immediately fetches fresh images (no waiting!)
 - **Every 6 Hours**: Automatically fetches new images via Chrome Alarms API
@@ -79,6 +84,7 @@ The extension works immediately with 20 beautiful fallback images! For fresh dai
 - **Fallback System**: Uses 20 default images when no API keys configured
 
 ### Image Fetching Strategy
+
 - **Unsplash**: Fetches 30 images (API maximum)
 - **Pexels**: Fetches 50 images (optimized for variety)
 - **Total**: Up to 80 images per refresh cycle!
@@ -91,6 +97,7 @@ The extension works immediately with 20 beautiful fallback images! For fresh dai
 - **Expiry**: Each image expires after 24 hours, cleaned automatically
 
 ### New Tab Display
+
 - **Always from Cache**: Never fetches directly from APIs (instant loading!)
 - **True Offline**: Displays work completely without internet connection
 - **Blob URLs**: Creates temporary object URLs from stored blobs for display
@@ -103,6 +110,7 @@ The extension works immediately with 20 beautiful fallback images! For fresh dai
 - **Photo Credits**: Displays photographer name and source with links
 
 ### Settings Sync
+
 - Settings stored in `chrome.storage.local`
 - Changes apply instantly across all tabs
 - Survives extension updates and browser restarts
@@ -111,11 +119,13 @@ The extension works immediately with 20 beautiful fallback images! For fresh dai
 ## 🛠 Development
 
 ### Watch Mode
+
 ```bash
 npm run watch
 ```
 
 ### Project Structure
+
 ```
 src/
 ├── background.ts          # Service worker (periodic fetching, immediate fetch on key add)
@@ -133,6 +143,7 @@ src/
 ```
 
 ### Technologies Used
+
 - **TypeScript**: Type-safe development
 - **esbuild**: Fast bundling to vanilla JS
 - **IndexedDB**: Client-side image storage (up to 80 images)
@@ -143,26 +154,32 @@ src/
 ## 🎯 Key Behaviors
 
 ### Immediate Fetch on API Key Addition
+
 When you add API keys through the options page:
+
 1. Background worker fetches images immediately
 2. Updates last fetch timestamp
 3. New tab shows fresh images right away
 4. Then waits for the regular 6-hour cycle
 
 ### Service Worker Sleep Management
+
 The service worker may sleep when the browser is idle. When it wakes up:
+
 1. Checks `lastFetch` timestamp from IndexedDB
 2. Compares with current time
 3. If >6 hours have passed, triggers a fresh API fetch
 4. Otherwise, uses existing cached images
 
 ### Fallback System
+
 - **No API Keys**: Uses 20 beautiful default images
 - **Single API**: Works perfectly with just Unsplash OR Pexels
 - **API Failure**: Falls back to cached images or defaults
 - **First Run**: Shows fallback images with notification to configure keys
 
 ### Image Refresh Logic
+
 - **Immediate**: When API keys are added/updated
 - **Automatic**: Background process every 6 hours
 - **Manual**: Click refresh button (uses existing cache)
@@ -189,4 +206,4 @@ Feel free to submit issues or pull requests!
 
 **Enjoy your beautiful new tab experience! 🎨✨**
 
-*Built with TypeScript, love, and a passion for beautiful wallpapers.*
+_Built with TypeScript, love, and a passion for beautiful wallpapers._

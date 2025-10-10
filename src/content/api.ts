@@ -4,30 +4,46 @@
 
 import { ImageData } from './db.js';
 import { getRandomIndex } from '../utils/random.js';
-import { 
-  UNSPLASH_IMAGES_COUNT, 
-  PEXELS_IMAGES_COUNT, 
-  IMAGE_EXPIRY_HOURS 
+import {
+  UNSPLASH_IMAGES_COUNT,
+  PEXELS_IMAGES_COUNT,
+  IMAGE_EXPIRY_HOURS
 } from '../config/constants.js';
 
 /**
- * Download image as blob from URL
+ * Download image as blob from URL with timeout
  */
-async function downloadImageBlob(url: string): Promise<Blob> {
-  const response = await fetch(url);
-  
-  if (!response.ok) {
-    throw new Error(`Failed to download image: ${response.status}`);
+async function downloadImageBlob(url: string, timeoutMs: number = 30000): Promise<Blob> {
+  // Create abort controller for timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error(`Failed to download image: ${response.status}`);
+    }
+
+    const blob = await response.blob();
+
+    // Ensure it's an image type
+    if (!blob.type.startsWith('image/')) {
+      throw new Error(`Invalid image type: ${blob.type}`);
+    }
+
+    return blob;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if ((error as Error).name === 'AbortError') {
+      throw new Error('Image download timeout');
+    }
+    throw error;
   }
-  
-  const blob = await response.blob();
-  
-  // Ensure it's an image type
-  if (!blob.type.startsWith('image/')) {
-    throw new Error(`Invalid image type: ${blob.type}`);
-  }
-  
-  return blob;
 }
 
 interface Settings {
@@ -69,9 +85,15 @@ function getRandomKey(keys: string[]): string | null {
  */
 async function fetchUnsplashImages(apiKey: string, keywords?: string): Promise<ImageData[]> {
   try {
+    // Check if online before attempting
+    if (!navigator.onLine) {
+      console.warn('No network connection, skipping Unsplash fetch');
+      return [];
+    }
+
     // Unsplash max is 30 images per request
     let url = `https://api.unsplash.com/photos/random?count=${UNSPLASH_IMAGES_COUNT}&orientation=landscape`;
-    
+
     if (keywords) {
       const keywordList = keywords.split(',').map(k => k.trim()).filter(k => k);
       if (keywordList.length > 0) {
@@ -82,7 +104,8 @@ async function fetchUnsplashImages(apiKey: string, keywords?: string): Promise<I
     }
 
     const response = await fetch(url, {
-      headers: { 'Authorization': `Client-ID ${apiKey}` }
+      headers: { 'Authorization': `Client-ID ${apiKey}` },
+      signal: AbortSignal.timeout(15000) // 15 second timeout for API call
     });
 
     if (!response.ok) {
@@ -127,8 +150,14 @@ async function fetchUnsplashImages(apiKey: string, keywords?: string): Promise<I
  */
 async function fetchPexelsImages(apiKey: string, keywords?: string): Promise<ImageData[]> {
   try {
+    // Check if online before attempting
+    if (!navigator.onLine) {
+      console.warn('No network connection, skipping Pexels fetch');
+      return [];
+    }
+
     let url: string;
-    
+
     if (keywords) {
       const keywordList = keywords.split(',').map(k => k.trim()).filter(k => k);
       if (keywordList.length > 0) {
@@ -145,7 +174,8 @@ async function fetchPexelsImages(apiKey: string, keywords?: string): Promise<Ima
     }
 
     const response = await fetch(url, {
-      headers: { 'Authorization': apiKey }
+      headers: { 'Authorization': apiKey },
+      signal: AbortSignal.timeout(15000) // 15 second timeout for API call
     });
 
     if (!response.ok) {
@@ -190,7 +220,7 @@ async function fetchPexelsImages(apiKey: string, keywords?: string): Promise<Ima
  */
 export async function fetchAllImages(): Promise<ImageData[]> {
   console.log('Fetching images from APIs...');
-  
+
   const settings = await getSettings();
   const unsplashKey = getRandomKey(settings.apiKeys.unsplash);
   const pexelsKey = getRandomKey(settings.apiKeys.pexels);
@@ -211,7 +241,7 @@ export async function fetchAllImages(): Promise<ImageData[]> {
 
   const results = await Promise.all(promises);
   const allImages = results.flat();
-  
+
   console.log(`Fetched ${allImages.length} images total`);
   return allImages;
 }

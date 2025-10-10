@@ -171,22 +171,73 @@ const FALLBACK_IMAGES: Omit<ImageData, 'timestamp' | 'expiresAt' | 'blob'>[] = [
 ];
 
 /**
- * Get fallback images with timestamps
- * Downloads images as blobs for offline support
+ * Get fallback images (downloads as blobs for offline support)
+ * Tries to download from Unsplash, falls back to embedded placeholder if offline
  */
-export function getFallbackImages(): Promise<ImageData[]> {
+export async function getFallbackImages(): Promise<ImageData[]> {
   const now = Date.now();
   const expiresAt = now + (24 * 60 * 60 * 1000); // 24 hours
+
+  // Check if online
+  const isOnline = navigator.onLine;
+
+  if (!isOnline) {
+    console.warn('Offline: Using embedded placeholder image for fallback');
+    // Create a simple gradient placeholder blob when offline
+    const canvas = document.createElement('canvas');
+    canvas.width = 1920;
+    canvas.height = 1080;
+    const ctx = canvas.getContext('2d')!;
+
+    // Create a nice gradient
+    const gradient = ctx.createLinearGradient(0, 0, 1920, 1080);
+    gradient.addColorStop(0, '#667eea');
+    gradient.addColorStop(1, '#764ba2');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 1920, 1080);
+
+    // Add text
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.font = '48px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Offline Mode', 960, 500);
+    ctx.font = '24px -apple-system, sans-serif';
+    ctx.fillText('Connect to internet to download wallpapers', 960, 550);
+
+    const blob = await new Promise<Blob>((resolve) => {
+      canvas.toBlob((b) => resolve(b!), 'image/png');
+    });
+
+    return [{
+      id: 'offline_placeholder',
+      url: '',
+      blob,
+      source: 'unsplash',
+      downloadUrl: '',
+      author: 'System',
+      authorUrl: '',
+      timestamp: now,
+      expiresAt
+    }];
+  }
 
   // Download all fallback images as blobs
   const imagePromises = FALLBACK_IMAGES.map(async (fallbackImage) => {
     try {
-      const response = await fetch(fallbackImage.url);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+      const response = await fetch(fallbackImage.url, {
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
         throw new Error(`Failed to fetch fallback image: ${response.status}`);
       }
       const blob = await response.blob();
-      
+
       return {
         ...fallbackImage,
         blob,
@@ -199,9 +250,16 @@ export function getFallbackImages(): Promise<ImageData[]> {
     }
   });
 
-  return Promise.all(imagePromises).then(images => 
-    images.filter((img): img is ImageData => img !== null)
-  );
+  const images = await Promise.all(imagePromises);
+  const validImages = images.filter((img): img is ImageData => img !== null);
+
+  // If all fallback downloads failed, use placeholder
+  if (validImages.length === 0) {
+    console.warn('All fallback downloads failed, using offline placeholder');
+    return getFallbackImages(); // Recursion will trigger offline mode
+  }
+
+  return validImages;
 }
 
 /**

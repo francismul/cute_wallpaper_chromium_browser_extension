@@ -55,10 +55,10 @@ const MOCK_IMAGE_URLS: Omit<ImageData, 'timestamp' | 'expiresAt' | 'blob'>[] = [
 
 export async function fetchAllImagesMock(): Promise<ImageData[]> {
   console.log('⚠️ Using mock images for testing - downloading blobs from real URLs...');
-  
+
   const now = Date.now();
   const expiresAt = now + (24 * 60 * 60 * 1000); // 24 hours
-  
+
   // Download blobs for each mock image
   const imagesPromises = MOCK_IMAGE_URLS.map(async (imgData) => {
     try {
@@ -67,11 +67,11 @@ export async function fetchAllImagesMock(): Promise<ImageData[]> {
         throw new Error(`HTTP ${response.status}`);
       }
       const blob = await response.blob();
-      
+
       if (!blob.type.startsWith('image/')) {
         throw new Error(`Not an image: ${blob.type}`);
       }
-      
+
       return {
         ...imgData,
         blob,
@@ -93,7 +93,7 @@ export async function fetchAllImagesMock(): Promise<ImageData[]> {
       };
     }
   });
-  
+
   return Promise.all(imagesPromises);
 }
 

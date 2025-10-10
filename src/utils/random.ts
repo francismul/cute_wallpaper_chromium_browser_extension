@@ -20,13 +20,13 @@ export function getRandomIndex(max: number): number {
   const limit = range - (range % max); // Largest multiple of max that fits in range
 
   let randomValue: number;
-  
+
   // Rejection sampling: keep generating until we get a value in the unbiased range
   do {
     crypto.getRandomValues(randomBuffer);
     randomValue = randomBuffer[0]!;
   } while (randomValue >= limit);
-  
+
   // Now modulo is safe because we're within a perfect multiple of max
   return randomValue % max;
 }
@@ -38,18 +38,18 @@ export function getRandomIndex(max: number): number {
  */
 export function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
-  
+
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = getRandomIndex(i + 1);
     const temp = shuffled[i];
     const item = shuffled[j];
-    
+
     if (temp !== undefined && item !== undefined) {
       shuffled[i] = item;
       shuffled[j] = temp;
     }
   }
-  
+
   return shuffled;
 }
 

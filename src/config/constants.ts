@@ -27,5 +27,11 @@ export const DEFAULT_CLOCK_FORMAT_24H = false;
 export const DEFAULT_CLOCK_SHOW_SECONDS = true;
 export const DEFAULT_CLOCK_SHOW_DATE = true;
 
+// History Settings
+export const DEFAULT_HISTORY_ENABLED = true;
+export const DEFAULT_HISTORY_MAX_SIZE = 15;
+export const MIN_HISTORY_SIZE = 5;
+export const MAX_HISTORY_SIZE = 50;
+
 // Fallback Images
 export const FALLBACK_IMAGE_COUNT = 20;

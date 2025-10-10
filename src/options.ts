@@ -2,15 +2,15 @@
  * Options Page Logic
  */
 
-import { getAllValidImages, getLastFetchTime, clearAllImages } from './content/db.js';
-import { 
+import { getAllValidImages, getLastFetchTime, clearAllImages, getHistoryCount, clearHistory } from './content/db.js';
+import {
   DEFAULT_AUTO_REFRESH_INTERVAL,
-  MIN_AUTO_REFRESH_INTERVAL,
-  MAX_AUTO_REFRESH_INTERVAL,
   DEFAULT_CLOCK_ENABLED,
   DEFAULT_CLOCK_FORMAT_24H,
   DEFAULT_CLOCK_SHOW_SECONDS,
-  DEFAULT_CLOCK_SHOW_DATE
+  DEFAULT_CLOCK_SHOW_DATE,
+  DEFAULT_HISTORY_ENABLED,
+  DEFAULT_HISTORY_MAX_SIZE
 } from './config/constants.js';
 
 interface Settings {
@@ -31,6 +31,10 @@ interface Settings {
     format24: boolean;
     showSeconds: boolean;
     showDate: boolean;
+  };
+  history: {
+    enabled: boolean;
+    maxSize: number;
   };
   apiKeyStatus?: {
     [key: string]: {
@@ -59,6 +63,10 @@ const DEFAULT_SETTINGS: Settings = {
     format24: DEFAULT_CLOCK_FORMAT_24H,
     showSeconds: DEFAULT_CLOCK_SHOW_SECONDS,
     showDate: DEFAULT_CLOCK_SHOW_DATE
+  },
+  history: {
+    enabled: DEFAULT_HISTORY_ENABLED,
+    maxSize: DEFAULT_HISTORY_MAX_SIZE
   }
 };
 
@@ -83,7 +91,7 @@ function showMessage(text: string, type: 'success' | 'error' | 'info') {
   const messageEl = document.getElementById('message')!;
   messageEl.textContent = text;
   messageEl.className = `message ${type} show`;
-  
+
   setTimeout(() => {
     messageEl.classList.remove('show');
   }, 3000);
@@ -171,13 +179,13 @@ function renderApiKeys(settings: Settings) {
   // Update status indicators
   const unsplashStatusEl = document.getElementById('unsplashStatus')!;
   const pexelsStatusEl = document.getElementById('pexelsStatus')!;
-  
+
   if (settings.apiKeys.unsplash.length > 0) {
     unsplashStatusEl.innerHTML = `📷 Unsplash: <span style="color: #28a745; font-weight: 600;">Active (${settings.apiKeys.unsplash.length} key${settings.apiKeys.unsplash.length > 1 ? 's' : ''})</span>`;
   } else {
     unsplashStatusEl.innerHTML = `📷 Unsplash: <span style="color: #dc3545; font-weight: 600;">Not Configured</span>`;
   }
-  
+
   if (settings.apiKeys.pexels.length > 0) {
     pexelsStatusEl.innerHTML = `🖼️ Pexels: <span style="color: #28a745; font-weight: 600;">Active (${settings.apiKeys.pexels.length} key${settings.apiKeys.pexels.length > 1 ? 's' : ''})</span>`;
   } else {
@@ -197,20 +205,20 @@ function renderApiKeys(settings: Settings) {
   allKeys.forEach(({ source, key }) => {
     const item = document.createElement('div');
     item.className = 'api-key-item';
-    
+
     const maskedKey = key.slice(0, 8) + '•'.repeat(Math.max(0, key.length - 12)) + key.slice(-4);
-    
+
     // Get stored test status
     const keyHash = `${source}_${key}`;
     const status = settings.apiKeyStatus?.[keyHash];
     let statusText = 'Not Tested';
     let statusClass = 'unknown';
-    
+
     if (status?.tested) {
       statusText = status.valid ? 'Valid' : 'Invalid';
       statusClass = status.valid ? 'valid' : 'invalid';
     }
-    
+
     item.innerHTML = `
       <span class="source">${source.charAt(0).toUpperCase() + source.slice(1)}</span>
       <span class="key">${maskedKey}</span>
@@ -218,7 +226,7 @@ function renderApiKeys(settings: Settings) {
       <button class="test-btn secondary" data-source="${source}" data-key="${key}">Test</button>
       <button class="delete-btn danger" data-source="${source}" data-key="${key}">Delete</button>
     `;
-    
+
     container.appendChild(item);
   });
 
@@ -229,15 +237,15 @@ function renderApiKeys(settings: Settings) {
       const source = target.dataset.source as 'unsplash' | 'pexels';
       const key = target.dataset.key!;
       const statusEl = target.previousElementSibling!;
-      
+
       statusEl.textContent = 'Testing...';
       statusEl.className = 'status unknown';
-      
+
       const isValid = await testApiKey(source, key);
-      
+
       statusEl.textContent = isValid ? 'Valid' : 'Invalid';
       statusEl.className = `status ${isValid ? 'valid' : 'invalid'}`;
-      
+
       // Save test result to storage
       const currentSettings = await loadSettings();
       if (!currentSettings.apiKeyStatus) {
@@ -258,18 +266,18 @@ function renderApiKeys(settings: Settings) {
       const target = e.target as HTMLButtonElement;
       const source = target.dataset.source as 'unsplash' | 'pexels';
       const key = target.dataset.key!;
-      
+
       const currentSettings = await loadSettings();
       currentSettings.apiKeys[source] = currentSettings.apiKeys[source].filter(k => k !== key);
-      
+
       // Remove test status for this key
       if (currentSettings.apiKeyStatus) {
         const keyHash = `${source}_${key}`;
         delete currentSettings.apiKeyStatus[keyHash];
       }
-      
+
       await saveSettings(currentSettings);
-      
+
       renderApiKeys(currentSettings);
       showMessage(`${source.charAt(0).toUpperCase() + source.slice(1)} API key deleted`, 'success');
     });
@@ -294,7 +302,7 @@ async function loadCacheStats() {
     document.getElementById('expiredItems')!.textContent = expiredItems.toString();
     document.getElementById('unsplashCount')!.textContent = unsplashCount.toString();
     document.getElementById('pexelsCount')!.textContent = pexelsCount.toString();
-    
+
     // Use auto-updating relative time for last fetch
     const lastFetchEl = document.getElementById('lastFetchTime')!;
     if (lastFetch) {
@@ -307,6 +315,16 @@ async function loadCacheStats() {
   }
 }
 
+// Load history statistics
+async function loadHistoryStats() {
+  try {
+    const count = await getHistoryCount();
+    document.getElementById('historyCount')!.textContent = count.toString();
+  } catch (error) {
+    console.error('Error loading history stats:', error);
+  }
+}
+
 // Initialize the page
 async function init() {
   const settings = await loadSettings();
@@ -315,36 +333,52 @@ async function init() {
   renderApiKeys(settings);
 
   // Load search preferences
-  (document.getElementById('unsplashKeywords') as HTMLTextAreaElement).value = 
+  (document.getElementById('unsplashKeywords') as HTMLTextAreaElement).value =
     settings.searchPreferences.unsplashKeywords;
-  (document.getElementById('pexelsKeywords') as HTMLTextAreaElement).value = 
+  (document.getElementById('pexelsKeywords') as HTMLTextAreaElement).value =
     settings.searchPreferences.pexelsKeywords;
 
   // Load auto refresh settings
-  (document.getElementById('autoRefreshEnabled') as HTMLInputElement).checked = 
+  (document.getElementById('autoRefreshEnabled') as HTMLInputElement).checked =
     settings.autoRefresh.enabled;
-  (document.getElementById('autoRefreshInterval') as HTMLInputElement).value = 
+  (document.getElementById('autoRefreshInterval') as HTMLInputElement).value =
     settings.autoRefresh.interval.toString();
-  document.getElementById('intervalDisplay')!.textContent = 
+  document.getElementById('intervalDisplay')!.textContent =
     `${settings.autoRefresh.interval}s`;
 
   // Load clock settings
-  (document.getElementById('clockEnabled') as HTMLInputElement).checked = 
+  (document.getElementById('clockEnabled') as HTMLInputElement).checked =
     settings.clock.enabled;
-  (document.getElementById('clock24Hour') as HTMLInputElement).checked = 
+  (document.getElementById('clock24Hour') as HTMLInputElement).checked =
     settings.clock.format24;
-  (document.getElementById('clockShowSeconds') as HTMLInputElement).checked = 
+  (document.getElementById('clockShowSeconds') as HTMLInputElement).checked =
     settings.clock.showSeconds;
-  (document.getElementById('clockShowDate') as HTMLInputElement).checked = 
+  (document.getElementById('clockShowDate') as HTMLInputElement).checked =
     settings.clock.showDate;
+
+  // Load history settings
+  (document.getElementById('historyEnabled') as HTMLInputElement).checked =
+    settings.history?.enabled ?? true;
+  (document.getElementById('historyMaxSize') as HTMLInputElement).value =
+    (settings.history?.maxSize ?? 15).toString();
+  document.getElementById('historySizeDisplay')!.textContent =
+    (settings.history?.maxSize ?? 15).toString();
 
   // Load cache stats
   loadCacheStats();
+
+  // Load history count
+  loadHistoryStats();
 
   // Event listeners
   document.getElementById('autoRefreshInterval')!.addEventListener('input', (e) => {
     const value = (e.target as HTMLInputElement).value;
     document.getElementById('intervalDisplay')!.textContent = `${value}s`;
+  });
+
+  document.getElementById('historyMaxSize')!.addEventListener('input', (e) => {
+    const value = (e.target as HTMLInputElement).value;
+    document.getElementById('historySizeDisplay')!.textContent = value;
   });
 
   document.getElementById('addApiKeyBtn')!.addEventListener('click', async () => {
@@ -357,15 +391,15 @@ async function init() {
     }
 
     const currentSettings = await loadSettings();
-    
+
     if (currentSettings.apiKeys[source].includes(key)) {
       showMessage('This API key is already added', 'error');
       return;
     }
 
     // Check if this is the first API key being added
-    const wasEmpty = currentSettings.apiKeys.unsplash.length === 0 && 
-                     currentSettings.apiKeys.pexels.length === 0;
+    const wasEmpty = currentSettings.apiKeys.unsplash.length === 0 &&
+      currentSettings.apiKeys.pexels.length === 0;
 
     currentSettings.apiKeys[source].push(key);
     await saveSettings(currentSettings);
@@ -428,6 +462,11 @@ async function init() {
       showDate: (document.getElementById('clockShowDate') as HTMLInputElement).checked
     };
 
+    currentSettings.history = {
+      enabled: (document.getElementById('historyEnabled') as HTMLInputElement).checked,
+      maxSize: parseInt((document.getElementById('historyMaxSize') as HTMLInputElement).value)
+    };
+
     await saveSettings(currentSettings);
     showMessage('Settings saved successfully!', 'success');
 
@@ -443,7 +482,10 @@ async function init() {
     }
   });
 
-  document.getElementById('refreshStatsBtn')!.addEventListener('click', loadCacheStats);
+  document.getElementById('refreshStatsBtn')!.addEventListener('click', () => {
+    loadCacheStats();
+    loadHistoryStats();
+  });
 
   document.getElementById('clearCacheBtn')!.addEventListener('click', async () => {
     if (confirm('Are you sure you want to clear the entire cache? This will delete all stored images.')) {
@@ -452,7 +494,37 @@ async function init() {
       showMessage('Cache cleared successfully', 'success');
     }
   });
+
+  document.getElementById('clearHistoryBtn')!.addEventListener('click', async () => {
+    if (confirm('Are you sure you want to clear image history? This will delete all navigation history.')) {
+      await clearHistory();
+      await loadHistoryStats();
+      showMessage('History cleared successfully', 'success');
+    }
+  });
+}
+
+/**
+ * Check if background refresh is needed and trigger it
+ * This ensures missed alarms don't leave cache stale
+ */
+async function checkAndTriggerRefresh() {
+  try {
+    const { REFRESH_INTERVAL_MS } = await import('./config/constants.js');
+    const lastFetch = await getLastFetchTime();
+    const now = Date.now();
+
+    if (lastFetch && (now - lastFetch) >= REFRESH_INTERVAL_MS) {
+      console.log('⏰ Refresh overdue, notifying background worker...');
+      chrome.runtime.sendMessage({ action: 'checkRefreshNeeded' });
+    }
+  } catch (error) {
+    console.error('Failed to check refresh status:', error);
+  }
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+  init();
+  checkAndTriggerRefresh(); // Check for stale cache on page load
+});

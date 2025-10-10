@@ -1,201 +1,409 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New Tab</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    }
-
-    #wallpaper {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: -1;
-      opacity: 0;
-      transition: opacity 0.5s ease-in-out;
-    }
-
-    #wallpaper.loaded {
-      opacity: 1;
-    }
-
-    .controls {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      display: flex;
-      gap: 15px;
-      z-index: 10;
-    }
-
-    button {
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(10px);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 12px 24px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    button:hover {
-      background: rgba(0, 0, 0, 0.7);
-      border-color: rgba(255, 255, 255, 0.4);
-      transform: translateY(-2px);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
-    .credit {
-      position: fixed;
-      bottom: 30px;
-      left: 30px;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(10px);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 14px;
-      z-index: 10;
-      display: none;
-    }
-
-    .credit.visible {
-      display: block;
-    }
-
-    .credit a {
-      color: #4da6ff;
-      text-decoration: none;
-    }
-
-    .credit a:hover {
-      text-decoration: underline;
-    }
-
-    .loading {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: white;
-      font-size: 18px;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-      z-index: 5;
-    }
-
-    .error {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(220, 38, 38, 0.9);
-      color: white;
-      padding: 20px 30px;
-      border-radius: 8px;
-      font-size: 16px;
-      z-index: 5;
-      max-width: 500px;
-      text-align: center;
-    }
-
-    /* Clock Styles */
-    .clock-container {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      color: white;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-      z-index: 10;
-      pointer-events: none;
-    }
-
-    .clock-container.hidden {
-      display: none;
-    }
-
-    .time {
-      font-size: 96px;
-      font-weight: 300;
-      letter-spacing: -2px;
-      line-height: 1;
-      margin-bottom: 10px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-
-    .date {
-      font-size: 24px;
-      font-weight: 400;
-      opacity: 0.95;
-      letter-spacing: 1px;
-    }
-
-    @media (max-width: 768px) {
-      .time {
-        font-size: 64px;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Tab</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
-      .date {
+
+      body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+
+      #wallpaper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+        opacity: 0;
+        transform: scale(1);
+        transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+      }
+
+      #wallpaper.loaded {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      /* Fade animation (default) */
+      #wallpaper.fade-out {
+        opacity: 0;
+      }
+
+      /* Slide animation */
+      #wallpaper.slide-next {
+        animation: slideInFromRight 0.6s ease-in-out;
+      }
+
+      #wallpaper.slide-prev {
+        animation: slideInFromLeft 0.6s ease-in-out;
+      }
+
+      @keyframes slideInFromRight {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideInFromLeft {
+        from {
+          transform: translateX(-100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      /* Zoom animation */
+      #wallpaper.zoom-in {
+        animation: zoomIn 0.6s ease-in-out;
+      }
+
+      @keyframes zoomIn {
+        from {
+          transform: scale(1.2);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      /* Fade and zoom combo */
+      #wallpaper.fade-zoom {
+        animation: fadeZoom 0.7s ease-in-out;
+      }
+
+      @keyframes fadeZoom {
+        from {
+          transform: scale(0.95);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .controls {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        display: flex;
+        gap: 15px;
+        z-index: 10;
+      }
+
+      button {
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      button:hover {
+        background: rgba(0, 0, 0, 0.7);
+        border-color: rgba(255, 255, 255, 0.4);
+        transform: translateY(-2px);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      .credit {
+        position: fixed;
+        bottom: 30px;
+        left: 30px;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        z-index: 10;
+        display: none;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.4s ease-in-out 0.3s,
+          transform 0.4s ease-in-out 0.3s;
+      }
+
+      .credit.visible {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .credit a {
+        color: #4da6ff;
+        text-decoration: none;
+      }
+
+      .credit a:hover {
+        text-decoration: underline;
+      }
+
+      .loading {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
         font-size: 18px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        z-index: 5;
+        display: none; /* Hidden by default - we load from local IndexedDB */
       }
-    }
-  </style>
-</head>
-<body>
-  <img id="wallpaper" alt="Wallpaper">
-  
-  <div class="loading" id="loading">Loading...</div>
-  
-  <!-- Clock Container -->
-  <div class="clock-container" id="clockContainer">
-    <div class="time" id="timeDisplay">00:00:00</div>
-    <div class="date" id="dateDisplay">Loading...</div>
-  </div>
-  
-  <div class="credit" id="credit">
-    Photo by <span id="author"></span> on <span id="source"></span>
-  </div>
 
-  <div class="controls">
-    <button id="refreshBtn" title="Get another random image from cache">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-      </svg>
-      Refresh
-    </button>
-    <button id="settingsBtn" title="Open settings">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/>
-        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
-      </svg>
-      Settings
-    </button>
-  </div>
+      .error {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(220, 38, 38, 0.9);
+        color: white;
+        padding: 20px 30px;
+        border-radius: 8px;
+        font-size: 16px;
+        z-index: 5;
+        max-width: 500px;
+        text-align: center;
+      }
 
-  <script type="module" src="newTab.js"></script>
-</body>
+      /* Clock Styles */
+      .clock-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: white;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      .clock-container.hidden {
+        display: none;
+      }
+
+      .time {
+        font-size: 96px;
+        font-weight: 300;
+        letter-spacing: -2px;
+        line-height: 1;
+        margin-bottom: 10px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+      }
+
+      .date {
+        font-size: 24px;
+        font-weight: 400;
+        opacity: 0.95;
+        letter-spacing: 1px;
+      }
+
+      @media (max-width: 768px) {
+        .time {
+          font-size: 64px;
+        }
+        .date {
+          font-size: 18px;
+        }
+      }
+
+      /* History Navigation Arrows */
+      .nav-arrow {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        font-size: 48px;
+        width: 60px;
+        height: 80px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* Show arrows on hover in their area */
+      body:hover .nav-arrow.visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      /* Keep arrows visible when hovering them */
+      .nav-arrow.visible:hover {
+        opacity: 1;
+      }
+
+      .nav-arrow-left {
+        left: 20px;
+      }
+
+      .nav-arrow-right {
+        right: 20px;
+      }
+
+      .nav-arrow:hover {
+        background: rgba(0, 0, 0, 0.8);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-50%) scale(1.1);
+      }
+
+      .nav-arrow:active {
+        transform: translateY(-50%) scale(0.95);
+      }
+
+      .nav-arrow.disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      .nav-arrow.disabled:hover {
+        transform: translateY(-50%) scale(1);
+      }
+
+      /* History Indicator */
+      .history-indicator {
+        position: fixed;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(10px);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 1000;
+        display: none;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        white-space: nowrap;
+      }
+
+      .history-indicator.visible {
+        display: block;
+      }
+
+      @media (max-width: 768px) {
+        .nav-arrow {
+          width: 50px;
+          height: 70px;
+          font-size: 36px;
+        }
+        .nav-arrow-left {
+          left: 10px;
+        }
+        .nav-arrow-right {
+          right: 10px;
+        }
+        .history-indicator {
+          bottom: 80px;
+          font-size: 12px;
+          padding: 6px 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <img id="wallpaper" alt="Wallpaper" />
+
+    <div class="loading" id="loading">Loading...</div>
+
+    <!-- History Navigation Arrows -->
+    <button
+      class="nav-arrow nav-arrow-left"
+      id="prevImageBtn"
+      title="Previous image (← Left arrow key)"
+    >
+      ‹
+    </button>
+
+    <button
+      class="nav-arrow nav-arrow-right"
+      id="nextImageBtn"
+      title="New random image (→ Right arrow key)"
+    >
+      ›
+    </button>
+
+    <!-- History Position Indicator -->
+    <div class="history-indicator" id="historyIndicator">
+      <span id="historyPosition">1</span> / <span id="historyTotal">15</span>
+    </div>
+
+    <!-- Clock Container -->
+    <div class="clock-container" id="clockContainer">
+      <div class="time" id="timeDisplay">00:00:00</div>
+      <div class="date" id="dateDisplay">Loading...</div>
+    </div>
+
+    <div class="credit" id="credit">
+      Photo by <span id="author"></span> on <span id="source"></span>
+    </div>
+
+    <div class="controls">
+      <button id="settingsBtn" title="Open settings">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+          <path
+            d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"
+          />
+        </svg>
+        Settings
+      </button>
+    </div>
+
+    <script type="module" src="newTab.js"></script>
+  </body>
 </html>
