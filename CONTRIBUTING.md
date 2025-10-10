@@ -5,12 +5,14 @@ Thank you for your interest in contributing to the Cute Wallpapers Extension! Th
 ## 🤝 How to Contribute
 
 ### Reporting Issues
+
 - Use GitHub Issues to report bugs or request features
 - Include detailed steps to reproduce any bugs
 - Provide browser version and extension version information
 - Include screenshots if relevant
 
 ### Suggesting Features
+
 - Check existing issues to avoid duplicates
 - Clearly describe the feature and its benefits
 - Consider the impact on performance and user experience
@@ -18,11 +20,13 @@ Thank you for your interest in contributing to the Cute Wallpapers Extension! Th
 ### Code Contributions
 
 #### Prerequisites
+
 - Basic knowledge of JavaScript, HTML, and CSS
 - Familiarity with browser extension development
 - Understanding of Chrome Extension Manifest V3
 
 #### Development Setup
+
 1. Fork the repository
 2. Clone your fork locally
 3. Load the extension in developer mode
@@ -32,18 +36,21 @@ Thank you for your interest in contributing to the Cute Wallpapers Extension! Th
 ## 📋 Development Guidelines
 
 ### Code Style
+
 - Use consistent indentation (2 spaces)
 - Follow existing naming conventions
 - Add comments for complex logic
 - Keep functions focused and small
 
 ### Testing
+
 - Test all changes in multiple browsers (Chrome, Brave, Edge)
 - Verify cache functionality works correctly
 - Test with and without API keys
 - Check responsive design on different screen sizes
 
 ### Performance Considerations
+
 - Maintain cache-first loading strategy
 - Respect API rate limits
 - Minimize extension startup time
@@ -52,18 +59,21 @@ Thank you for your interest in contributing to the Cute Wallpapers Extension! Th
 ## 🔧 Technical Areas for Contribution
 
 ### High Priority
+
 - **Additional API Providers**: Integrate more image/video sources
 - **Smart Caching**: ML-based content prediction
 - **User Preferences**: Personalized content recommendations
 - **Accessibility**: Improve screen reader support
 
 ### Medium Priority
+
 - **Themes**: Dark/light mode support
 - **Animations**: Enhanced transitions and effects
 - **Search**: Advanced filtering and search options
 - **Sync**: Cross-device settings synchronization
 
 ### Low Priority
+
 - **Analytics**: Usage statistics (privacy-focused)
 - **Export**: Save favorite wallpapers
 - **Social**: Share wallpapers feature
@@ -72,6 +82,7 @@ Thank you for your interest in contributing to the Cute Wallpapers Extension! Th
 ## 🐛 Bug Reports
 
 When reporting bugs, please include:
+
 - **Browser**: Version and type (Chrome, Brave, Edge)
 - **Extension Version**: Found in `manifest.json`
 - **Steps to Reproduce**: Detailed reproduction steps
@@ -83,6 +94,7 @@ When reporting bugs, please include:
 ## 💡 Feature Requests
 
 For feature requests, please include:
+
 - **Use Case**: Why this feature would be useful
 - **Proposed Solution**: How you envision it working
 - **Alternatives**: Other ways to achieve the same goal
@@ -91,6 +103,7 @@ For feature requests, please include:
 ## 🏷️ Pull Request Guidelines
 
 ### Before Submitting
+
 - [ ] Code follows project style guidelines
 - [ ] Changes are tested in multiple browsers
 - [ ] Cache functionality works correctly
@@ -98,6 +111,7 @@ For feature requests, please include:
 - [ ] Documentation updated if needed
 
 ### Pull Request Format
+
 - Use clear, descriptive titles
 - Reference related issues with "Fixes #123" or "Closes #123"
 - Provide detailed description of changes
@@ -107,6 +121,7 @@ For feature requests, please include:
 ## 📝 Documentation
 
 Help improve documentation by:
+
 - Fixing typos or unclear instructions
 - Adding examples and use cases
 - Updating setup instructions
@@ -115,6 +130,7 @@ Help improve documentation by:
 ## 🎯 Project Goals
 
 Keep these project goals in mind when contributing:
+
 - **Performance**: Instant loading with cache-first strategy
 - **User Experience**: Beautiful, intuitive, and accessible
 - **Privacy**: Local storage, no data collection
@@ -131,6 +147,7 @@ Keep these project goals in mind when contributing:
 ## 🙋‍♀️ Questions?
 
 If you have questions about contributing:
+
 - Check existing issues and discussions
 - Create a new issue with the "question" label
 - Be specific about what you're trying to achieve
