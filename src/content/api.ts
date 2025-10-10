@@ -10,6 +10,26 @@ import {
   IMAGE_EXPIRY_HOURS 
 } from '../config/constants.js';
 
+/**
+ * Download image as blob from URL
+ */
+async function downloadImageBlob(url: string): Promise<Blob> {
+  const response = await fetch(url);
+  
+  if (!response.ok) {
+    throw new Error(`Failed to download image: ${response.status}`);
+  }
+  
+  const blob = await response.blob();
+  
+  // Ensure it's an image type
+  if (!blob.type.startsWith('image/')) {
+    throw new Error(`Invalid image type: ${blob.type}`);
+  }
+  
+  return blob;
+}
+
 interface Settings {
   apiKeys: {
     unsplash: string[];
@@ -73,16 +93,29 @@ async function fetchUnsplashImages(apiKey: string, keywords?: string): Promise<I
     const now = Date.now();
     const expiresAt = now + (IMAGE_EXPIRY_HOURS * 60 * 60 * 1000);
 
-    return data.map((photo: any) => ({
-      id: `unsplash_${photo.id}`,
-      url: photo.urls.regular,
-      source: 'unsplash' as const,
-      downloadUrl: photo.links.download,
-      author: photo.user.name,
-      authorUrl: photo.user.links.html,
-      timestamp: now,
-      expiresAt
-    }));
+    // Download images as blobs for offline support
+    const imagePromises = data.map(async (photo: any) => {
+      try {
+        const blob = await downloadImageBlob(photo.urls.regular);
+        return {
+          id: `unsplash_${photo.id}`,
+          url: photo.urls.regular,
+          blob,
+          source: 'unsplash' as const,
+          downloadUrl: photo.links.download,
+          author: photo.user.name,
+          authorUrl: photo.user.links.html,
+          timestamp: now,
+          expiresAt
+        };
+      } catch (error) {
+        console.error(`Failed to download Unsplash image ${photo.id}:`, error);
+        return null;
+      }
+    });
+
+    const images = await Promise.all(imagePromises);
+    return images.filter((img): img is ImageData => img !== null);
   } catch (error) {
     console.error('Failed to fetch from Unsplash:', error);
     return [];
@@ -123,16 +156,29 @@ async function fetchPexelsImages(apiKey: string, keywords?: string): Promise<Ima
     const now = Date.now();
     const expiresAt = now + (IMAGE_EXPIRY_HOURS * 60 * 60 * 1000);
 
-    return data.photos.map((photo: any) => ({
-      id: `pexels_${photo.id}`,
-      url: photo.src.large2x,
-      source: 'pexels' as const,
-      downloadUrl: photo.url,
-      author: photo.photographer,
-      authorUrl: photo.photographer_url,
-      timestamp: now,
-      expiresAt
-    }));
+    // Download images as blobs for offline support
+    const imagePromises = data.photos.map(async (photo: any) => {
+      try {
+        const blob = await downloadImageBlob(photo.src.large2x);
+        return {
+          id: `pexels_${photo.id}`,
+          url: photo.src.large2x,
+          blob,
+          source: 'pexels' as const,
+          downloadUrl: photo.url,
+          author: photo.photographer,
+          authorUrl: photo.photographer_url,
+          timestamp: now,
+          expiresAt
+        };
+      } catch (error) {
+        console.error(`Failed to download Pexels image ${photo.id}:`, error);
+        return null;
+      }
+    });
+
+    const images = await Promise.all(imagePromises);
+    return images.filter((img): img is ImageData => img !== null);
   } catch (error) {
     console.error('Failed to fetch from Pexels:', error);
     return [];

@@ -171,7 +171,8 @@ Apply changes immediately
 ```typescript
 {
   id: string;           // "unsplash_abc123", "pexels_456789", or "fallback_1"
-  url: string;          // Full resolution image URL
+  url: string;          // Full resolution image URL (for metadata/credits)
+  blob: Blob;           // Complete image blob (~2-5MB) for offline display
   source: 'unsplash' | 'pexels';
   downloadUrl: string;  // Link to original photo page
   author: string;       // Photographer name
@@ -180,6 +181,12 @@ Apply changes immediately
   expiresAt: number;    // When expires (timestamp + 24h)
 }
 ```
+
+**Storage Details:**
+- **Blob Storage**: Full image blobs stored for true offline functionality
+- **Storage Size**: ~2-5MB per image, ~160-400MB total for 80 images
+- **Offline First**: Extension works completely without internet once images cached
+- **Memory Management**: Object URLs created with `URL.createObjectURL()` and automatically revoked
 
 ### Object Store: `metadata`
 ```typescript
@@ -245,14 +252,42 @@ I use `chrome.storage.local` for settings synchronization:
 - **Keywords**: Optional search terms from user settings
 
 ### Fetch Strategy
-- Fetch from both APIs in parallel
-- **Total**: Up to 80 images (30 Unsplash + 50 Pexels)
-- **Single API**: Works with just one source (30-50 images)
+- **Blob Download**: Fetches complete image blobs from API URLs
+- **Parallel Processing**: Downloads all blobs concurrently with `Promise.all()`
+- **Total**: Up to 80 images (30 Unsplash + 50 Pexels) as blobs
+- **Single API**: Works with just one source (30-50 images as blobs)
 - **Multiple Keys**: Randomly rotates between user's keys
 - **Immediate fetch**: When user adds/updates API keys
 - **Scheduled fetch**: Every 6 hours via Chrome Alarms
-- **Fallback**: 20 default images when no API keys configured
+- **Fallback**: 20 default images downloaded as blobs when no API keys configured
+- **Storage**: ~160-400MB total (80 images × 2-5MB per blob)
+- **Offline**: Complete offline functionality once images cached
 - Stay well within rate limits
+
+### Blob Download Process
+```typescript
+async function downloadImageBlob(url: string): Promise<Blob> {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  
+  const blob = await response.blob();
+  
+  // Validate it's actually an image
+  if (!blob.type.startsWith('image/')) {
+    throw new Error(`Not an image: ${blob.type}`);
+  }
+  
+  return blob;
+}
+```
+
+### Memory Management
+- **Object URLs**: Created with `URL.createObjectURL(blob)` for display
+- **Cleanup**: Automatic revocation with `URL.revokeObjectURL()` when:
+  - User navigates to new image
+  - Page preloads next image
+  - Page unloads (beforeunload event)
+- **No Memory Leaks**: Strict lifecycle management prevents blob URL accumulation
 
 ## Time Management
 

@@ -42,6 +42,7 @@ async function shouldRefreshImages(): Promise<boolean> {
  */
 async function refreshImages(): Promise<void> {
   console.log('Starting image refresh...');
+  console.log('⬇️ Downloading images as blobs for offline support...');
   
   try {
     // Clean up expired images first
@@ -54,11 +55,12 @@ async function refreshImages(): Promise<void> {
     let images;
     
     if (useFallback) {
-      console.log('No API keys configured, using fallback images');
-      images = getFallbackImages();
+      console.log('No API keys configured, downloading fallback images...');
+      images = await getFallbackImages();
     } else {
       // Fetch from configured APIs
       images = await fetchAllImages();
+      console.log(`📥 Downloaded ${images.length} images as blobs`);
       
       // If no images were fetched (API errors, rate limits, etc.)
       // Check if we have any cached images
@@ -68,7 +70,7 @@ async function refreshImages(): Promise<void> {
         
         if (cachedImages.length === 0) {
           console.log('No cached images, falling back to default images');
-          images = getFallbackImages();
+          images = await getFallbackImages();
         } else {
           console.log(`Using ${cachedImages.length} existing cached images`);
           return; // Keep existing cache
@@ -94,7 +96,7 @@ async function refreshImages(): Promise<void> {
     const cachedImages = await getAllValidImages();
     if (cachedImages.length === 0) {
       console.log('Error occurred and cache is empty, loading fallback images');
-      const fallbackImages = getFallbackImages();
+      const fallbackImages = await getFallbackImages();
       await storeImages(fallbackImages);
       await setLastFetchTime(Date.now());
     }

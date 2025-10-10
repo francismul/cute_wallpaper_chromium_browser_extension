@@ -11,7 +11,8 @@ const METADATA_STORE = 'metadata';
 
 export interface ImageData {
   id: string;
-  url: string;
+  url: string; // Original URL from API (for reference)
+  blob: Blob; // Actual image data for offline support
   source: 'unsplash' | 'pexels';
   downloadUrl: string;
   author: string;

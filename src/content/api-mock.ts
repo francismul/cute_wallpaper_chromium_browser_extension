@@ -3,11 +3,14 @@
  * 
  * For development/testing, you can use mock data instead of real APIs.
  * Replace the fetchAllImages function in api.ts with this mock version.
+ * 
+ * NOTE: This downloads actual blobs from Unsplash/Pexels URLs.
+ * For fully offline testing, use the fallback system instead!
  */
 
 import { ImageData } from './db.js';
 
-const MOCK_IMAGES: Omit<ImageData, 'timestamp' | 'expiresAt'>[] = [
+const MOCK_IMAGE_URLS: Omit<ImageData, 'timestamp' | 'expiresAt' | 'blob'>[] = [
   {
     id: 'mock_1',
     url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4',
@@ -51,16 +54,47 @@ const MOCK_IMAGES: Omit<ImageData, 'timestamp' | 'expiresAt'>[] = [
 ];
 
 export async function fetchAllImagesMock(): Promise<ImageData[]> {
-  console.log('Using mock images for testing');
+  console.log('⚠️ Using mock images for testing - downloading blobs from real URLs...');
   
   const now = Date.now();
   const expiresAt = now + (24 * 60 * 60 * 1000); // 24 hours
   
-  return MOCK_IMAGES.map(img => ({
-    ...img,
-    timestamp: now,
-    expiresAt
-  }));
+  // Download blobs for each mock image
+  const imagesPromises = MOCK_IMAGE_URLS.map(async (imgData) => {
+    try {
+      const response = await fetch(imgData.url);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const blob = await response.blob();
+      
+      if (!blob.type.startsWith('image/')) {
+        throw new Error(`Not an image: ${blob.type}`);
+      }
+      
+      return {
+        ...imgData,
+        blob,
+        timestamp: now,
+        expiresAt
+      };
+    } catch (error) {
+      console.error(`Failed to download mock image ${imgData.id}:`, error);
+      // Return a placeholder blob (1x1 transparent PNG)
+      const placeholderBlob = new Blob(
+        [atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==')],
+        { type: 'image/png' }
+      );
+      return {
+        ...imgData,
+        blob: placeholderBlob,
+        timestamp: now,
+        expiresAt
+      };
+    }
+  });
+  
+  return Promise.all(imagesPromises);
 }
 
 // To use: 
