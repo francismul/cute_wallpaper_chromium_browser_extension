@@ -5,7 +5,9 @@
 
 import { ImageData } from './db.js';
 
-const FALLBACK_IMAGES: Omit<ImageData, 'timestamp' | 'expiresAt'>[] = [
+// Note: Fallback images will be downloaded as blobs when needed
+// URLs are kept for initial download
+const FALLBACK_IMAGES: Omit<ImageData, 'timestamp' | 'expiresAt' | 'blob'>[] = [
   {
     id: 'fallback_1',
     url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80',
@@ -169,17 +171,37 @@ const FALLBACK_IMAGES: Omit<ImageData, 'timestamp' | 'expiresAt'>[] = [
 ];
 
 /**
- * Get fallback images with proper timestamps
+ * Get fallback images with timestamps
+ * Downloads images as blobs for offline support
  */
-export function getFallbackImages(): ImageData[] {
+export function getFallbackImages(): Promise<ImageData[]> {
   const now = Date.now();
-  const expiresAt = now + (365 * 24 * 60 * 60 * 1000); // 1 year (essentially never expires)
-  
-  return FALLBACK_IMAGES.map(img => ({
-    ...img,
-    timestamp: now,
-    expiresAt
-  }));
+  const expiresAt = now + (24 * 60 * 60 * 1000); // 24 hours
+
+  // Download all fallback images as blobs
+  const imagePromises = FALLBACK_IMAGES.map(async (fallbackImage) => {
+    try {
+      const response = await fetch(fallbackImage.url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch fallback image: ${response.status}`);
+      }
+      const blob = await response.blob();
+      
+      return {
+        ...fallbackImage,
+        blob,
+        timestamp: now,
+        expiresAt
+      };
+    } catch (error) {
+      console.error(`Failed to download fallback image ${fallbackImage.id}:`, error);
+      return null;
+    }
+  });
+
+  return Promise.all(imagePromises).then(images => 
+    images.filter((img): img is ImageData => img !== null)
+  );
 }
 
 /**

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### In Progress
+- 💾 **True Offline Mode (v2.1.0)** - Complete blob storage implementation for offline functionality
+
 ### Planned Features
 - 🎬 **Video Backgrounds (v2.1.0)** - Reimplemented with better controls, performance optimization, and mute/unmute options
 - 💬 **Inspirational Quotes (v2.1.0)** - Customizable quote sources, styling options, and positioning controls
@@ -17,6 +20,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Won't Implement
 - ❌ 30-minute refresh cycle - Staying with 6-hour cycle for better API efficiency and rate limit management
+
+## [2.1.0] - 2025-01-XX
+
+### Added
+
+#### 💾 **True Offline Mode**
+- **Blob Storage**: Downloads and stores complete image blobs (~2-5MB each) in IndexedDB
+- **Complete Offline Functionality**: Works without internet after initial cache
+- **Storage Size**: ~160-400MB total for 80 cached images
+- **Memory Management**: 
+  - Object URLs created with `URL.createObjectURL()` for blob display
+  - Automatic cleanup with `URL.revokeObjectURL()` to prevent memory leaks
+  - Cleanup on image change, preload completion, and page unload
+- **Parallel Downloads**: Fetches all blobs concurrently for faster caching
+- **Fallback Blobs**: 20 default images also downloaded as blobs
+- **Progress Logging**: Console logs show download progress and blob count
+
+### Changed
+- **API Fetching**: Now downloads complete image files instead of just metadata
+- **Image Display**: Converts blobs to object URLs instead of direct URL references
+- **Storage Strategy**: Increased from ~16KB (URLs) to ~160-400MB (blobs) for offline support
 
 ## [2.0.0] - 2025-10-10
 

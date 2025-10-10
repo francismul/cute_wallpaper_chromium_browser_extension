@@ -89,27 +89,59 @@ function showMessage(text: string, type: 'success' | 'error' | 'info') {
   }, 3000);
 }
 
-// Format relative time
+// Smart relative time formatter with auto updates
 function formatRelativeTime(timestamp: number): string {
   const now = Date.now();
-  const diff = now - timestamp;
-  
-  const seconds = Math.floor(diff / 1000);
+  const diff = timestamp - now; // note: positive if in future
+  const absDiff = Math.abs(diff);
+
+  const seconds = Math.floor(absDiff / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
   const weeks = Math.floor(days / 7);
   const months = Math.floor(days / 30);
   const years = Math.floor(days / 365);
-  
-  if (seconds < 10) return 'Just now';
-  if (seconds < 60) return `${seconds} second${seconds !== 1 ? 's' : ''} ago`;
-  if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
-  if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
-  if (days < 7) return `${days} day${days !== 1 ? 's' : ''} ago`;
-  if (weeks < 4) return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
-  if (months < 12) return `${months} month${months !== 1 ? 's' : ''} ago`;
-  return `${years} year${years !== 1 ? 's' : ''} ago`;
+
+  const isFuture = diff > 0;
+  const suffix = isFuture ? 'in ' : '';
+  const postfix = isFuture ? '' : ' ago';
+
+  if (seconds < 10) return isFuture ? 'In a few seconds' : 'Just now';
+  if (seconds < 60) return `${suffix}${seconds} second${seconds !== 1 ? 's' : ''}${postfix}`;
+  if (minutes < 60) return `${suffix}${minutes} minute${minutes !== 1 ? 's' : ''}${postfix}`;
+  if (hours < 24) return `${suffix}${hours} hour${hours !== 1 ? 's' : ''}${postfix}`;
+  if (days < 7) return `${suffix}${days} day${days !== 1 ? 's' : ''}${postfix}`;
+  if (weeks < 4) return `${suffix}${weeks} week${weeks !== 1 ? 's' : ''}${postfix}`;
+  if (months < 12) return `${suffix}${months} month${months !== 1 ? 's' : ''}${postfix}`;
+  return `${suffix}${years} year${years !== 1 ? 's' : ''}${postfix}`;
+}
+
+/**
+ * Auto-updates an element's innerText with relative time.
+ * @param el HTML element to update
+ * @param timestamp Time in ms
+ * @param intervalMs How often to refresh (default 30 seconds)
+ */
+function startRelativeTimeUpdater(
+  el: HTMLElement,
+  timestamp: number,
+  intervalMs = 30_000
+) {
+  const update = () => {
+    el.textContent = formatRelativeTime(timestamp);
+  };
+  update(); // initial
+  const interval = setInterval(update, intervalMs);
+
+  // stop updating when element is removed
+  const observer = new MutationObserver(() => {
+    if (!document.body.contains(el)) {
+      clearInterval(interval);
+      observer.disconnect();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
 }
 
 // Test API key
@@ -263,10 +295,12 @@ async function loadCacheStats() {
     document.getElementById('unsplashCount')!.textContent = unsplashCount.toString();
     document.getElementById('pexelsCount')!.textContent = pexelsCount.toString();
     
+    // Use auto-updating relative time for last fetch
+    const lastFetchEl = document.getElementById('lastFetchTime')!;
     if (lastFetch) {
-      document.getElementById('lastFetchTime')!.textContent = formatRelativeTime(lastFetch);
+      startRelativeTimeUpdater(lastFetchEl, lastFetch);
     } else {
-      document.getElementById('lastFetchTime')!.textContent = 'Never';
+      lastFetchEl.textContent = 'Never';
     }
   } catch (error) {
     console.error('Error loading cache stats:', error);

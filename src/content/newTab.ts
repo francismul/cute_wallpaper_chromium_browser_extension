@@ -22,12 +22,23 @@ const dateDisplay = document.getElementById('dateDisplay') as HTMLElement;
 let clockInterval: number | null = null;
 
 let currentImages: Awaited<ReturnType<typeof getAllValidImages>> = [];
+let currentBlobUrl: string | null = null; // Track current blob URL for cleanup
 
 /**
  * Display an image
  */
 function displayImage(imageData: NonNullable<Awaited<ReturnType<typeof getRandomImage>>>) {
-  wallpaperImg.src = imageData.url;
+  // Revoke previous blob URL to free memory
+  if (currentBlobUrl) {
+    URL.revokeObjectURL(currentBlobUrl);
+    currentBlobUrl = null;
+  }
+  
+  // Create object URL from blob
+  const blobUrl = URL.createObjectURL(imageData.blob);
+  currentBlobUrl = blobUrl;
+  
+  wallpaperImg.src = blobUrl;
   wallpaperImg.alt = `Photo by ${imageData.author}`;
   
   // Update credit
@@ -142,28 +153,32 @@ async function loadRandomImage() {
       return;
     }
     
-    // Preload image
+    // Preload image from blob
     const img = new Image();
     img.onload = () => {
       displayImage(imageData);
       loadingDiv.style.display = 'none';
       wallpaperImg.classList.add('loaded');
     };
-    
+
     img.onerror = () => {
       loadingDiv.style.display = 'none';
-      showError('Failed to load image');
+      showError('Failed to load image from cache');
     };
+
+    // Create object URL from blob for preloading
+    const tempBlobUrl = URL.createObjectURL(imageData.blob);
+    img.src = tempBlobUrl;
     
-    img.src = imageData.url;
+    // Clean up temporary URL after image loads
+    img.addEventListener('load', () => URL.revokeObjectURL(tempBlobUrl), { once: true });
+    img.addEventListener('error', () => URL.revokeObjectURL(tempBlobUrl), { once: true });
     
   } catch (error) {
     console.error('Error loading image:', error);
     showError('Error loading image from cache');
   }
-}
-
-/**
+}/**
  * Refresh button handler - gets new random image from cache
  */
 refreshBtn.addEventListener('click', () => {
@@ -315,6 +330,13 @@ chrome.storage.onChanged.addListener((changes: any, areaName: any) => {
   if (areaName === 'local' && changes.settings) {
     setupAutoRefresh();
     setupClock();
+  }
+});
+
+// Clean up blob URLs when page unloads
+window.addEventListener('beforeunload', () => {
+  if (currentBlobUrl) {
+    URL.revokeObjectURL(currentBlobUrl);
   }
 });
 

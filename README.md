@@ -1,4 +1,7 @@
-# Random Wallpaper Extension
+# Random Wa- 💾 **True Offline Mode**: Downloads and stores complete image blobs in IndexedDB (~160-400MB)
+- 🌐 **Works Without Internet**: All images cached locally, displays work completely offline
+- ⏳ **Auto Expiry**: Images expire after 24 hours to keep content fresh
+- 🔁 **Automatic Refresh**: Fetches new images every 6 hours in the backgroundaper Extension
 
 A TypeScript-based browser extension I built that displays beautiful random wallpapers from Unsplash and Pexels on every new tab. It features a comprehensive settings page, smart caching, and works even without API keys!
 
@@ -81,11 +84,17 @@ The extension works immediately with 20 beautiful fallback images! For fresh dai
 - **Total**: Up to 80 images per refresh cycle!
 - **Single API**: Works with just Unsplash OR Pexels (30-50 images)
 - **Keywords**: Optional search terms to customize image themes
-- **Storage**: All stored in IndexedDB with metadata (source, author, URL, timestamps)
+- **Blob Storage**: Downloads full image blobs (~2-5MB each) for true offline support
+- **Storage Size**: Expect ~160-400MB total storage (80 images × 2-5MB each)
+- **Memory Management**: Object URLs created/revoked automatically to prevent memory leaks
+- **Offline First**: All stored in IndexedDB with metadata (source, author, URL, timestamps)
 - **Expiry**: Each image expires after 24 hours, cleaned automatically
 
 ### New Tab Display
 - **Always from Cache**: Never fetches directly from APIs (instant loading!)
+- **True Offline**: Displays work completely without internet connection
+- **Blob URLs**: Creates temporary object URLs from stored blobs for display
+- **Memory Safety**: Automatically revokes old blob URLs to prevent memory leaks
 - **True Random**: Uses crypto-secure `crypto.getRandomValues()` for selection
 - **Refresh Button**: Gets a different random image from the existing cache
 - **Auto-Refresh**: Optional timer to rotate images (configurable 5-300 seconds)
