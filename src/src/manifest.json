@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Random Wallpaper",
+  "version": "2.0.0",
+  "description": "Display random wallpapers from Unsplash and Pexels on new tabs",
+  "permissions": [
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://api.unsplash.com/*",
+    "https://api.pexels.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "chrome_url_overrides": {
+    "newtab": "newTab.html"
+  },
+  "options_page": "options.html",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
