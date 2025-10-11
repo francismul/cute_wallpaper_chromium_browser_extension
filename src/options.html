@@ -13,24 +13,71 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: #f5f5f5;
-      padding: 20px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      margin: 0;
+      padding: 0;
       color: #333;
+      height: 100vh;
+      overflow: hidden;
     }
 
     .container {
-      max-width: 800px;
+      height: 100vh;
+      max-width: 900px;
       margin: 0 auto;
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
     }
 
     header {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      padding: 30px;
+      padding: 25px 30px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .title-section {
+      flex: 1;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .loading-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     h1 {
@@ -44,15 +91,77 @@
     }
 
     .content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
       padding: 30px;
+      scroll-behavior: smooth;
+    }
+
+    /* Custom scrollbar styling */
+    .content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .content::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    .content::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 4px;
+    }
+
+    .content::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
     }
 
     .section {
       margin-bottom: 40px;
+      opacity: 0;
+      animation: fadeInUp 0.6s ease forwards;
     }
+
+    .section:nth-child(1) { animation-delay: 0.1s; }
+    .section:nth-child(2) { animation-delay: 0.2s; }
+    .section:nth-child(3) { animation-delay: 0.3s; }
+    .section:nth-child(4) { animation-delay: 0.4s; }
+    .section:nth-child(5) { animation-delay: 0.5s; }
 
     .section:last-child {
       margin-bottom: 0;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Smooth transitions for interactive elements */
+    button, input, select, .stat-card {
+      transition: all 0.2s ease;
+    }
+
+    .message {
+      animation: slideDown 0.3s ease forwards;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .section-title {
@@ -232,6 +341,35 @@
       cursor: pointer;
     }
 
+    .checkbox-container {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 15px;
+      cursor: pointer;
+    }
+
+    .checkbox-container input[type="checkbox"] {
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .checkbox-label {
+      flex: 1;
+    }
+
+    .checkbox-label strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #333;
+    }
+
+    .setting-description {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.4;
+    }
+
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -266,12 +404,16 @@
     }
 
     .message {
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-bottom: 20px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
       display: none;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      margin-top: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
     }
 
     .message.show {
@@ -279,21 +421,21 @@
     }
 
     .message.success {
-      background: #d4edda;
+      background: rgba(212, 237, 218, 0.95);
       color: #155724;
-      border: 1px solid #c3e6cb;
+      border-color: rgba(195, 230, 203, 0.8);
     }
 
     .message.error {
-      background: #f8d7da;
+      background: rgba(248, 215, 218, 0.95);
       color: #721c24;
-      border: 1px solid #f5c6cb;
+      border-color: rgba(245, 198, 203, 0.8);
     }
 
     .message.info {
-      background: #d1ecf1;
+      background: rgba(209, 236, 241, 0.95);
       color: #0c5460;
-      border: 1px solid #bee5eb;
+      border-color: rgba(190, 229, 235, 0.8);
     }
 
     .help-text {
@@ -347,17 +489,76 @@
       font-weight: 600;
       color: #667eea;
     }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        max-width: 100%;
+        height: 100vh;
+      }
+
+      header {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .button-group button {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header {
+        padding: 15px;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+
+      .content {
+        padding: 15px;
+      }
+
+      .stat-card .value {
+        font-size: 24px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>⚙️ Random Wallpaper Settings</h1>
-      <p class="subtitle">Configure your wallpaper experience</p>
+      <div class="header-content">
+        <div class="title-section">
+          <h1>⚙️ Random Wallpaper Settings</h1>
+          <p class="subtitle">Configure your wallpaper experience</p>
+        </div>
+        <div class="header-actions">
+          <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+      <div id="message" class="message"></div>
     </header>
 
     <div class="content">
-      <div id="message" class="message"></div>
 
       <!-- API Keys Section -->
       <section class="section">
@@ -514,6 +715,41 @@
             </svg>
             Clear History
           </button>
+        </div>
+      </section>
+
+      <!-- Cache Settings Section -->
+      <section class="section">
+        <h2 class="section-title">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+          </svg>
+          Cache Settings
+        </h2>
+
+        <div class="form-group">
+          <label class="checkbox-container">
+            <input type="checkbox" id="permanentCacheEnabled">
+            <span class="checkbox-label">
+              <strong>Permanent Cache Mode</strong>
+              <div class="setting-description">
+                When enabled, cached images are stored forever and will never be automatically deleted. 
+                You can manually refresh the cache using the "Force Refresh Cache" button below.
+              </div>
+            </span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <button id="forceRefreshCacheBtn" class="secondary">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Force Refresh Cache
+          </button>
+          <div class="setting-description" style="margin-top: 8px;">
+            Manually fetch new images from APIs and replace the current cache (works regardless of permanent cache setting).
+          </div>
         </div>
       </section>
 

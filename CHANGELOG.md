@@ -5,26 +5,72 @@ All notable changes to the Random Wallpaper Extension will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
 ### In Progress
 
-- 💾 **True Offline Mode (v2.1.0)** - Complete blob storage implementation for offline functionality
-
-### Planned Features
-
-- 🎬 **Video Backgrounds (v2.1.0)** - Reimplemented with better controls, performance optimization, and mute/unmute options
-- 💬 **Inspirational Quotes (v2.1.0)** - Customizable quote sources, styling options, and positioning controls
+- 🎬 **Video Backgrounds** - Reimplemented with better controls, performance optimization, and mute/unmute options
+- 💬 **Inspirational Quotes** - Customizable quote sources, styling options, and positioning controls
 - 🎨 **Image Filtering** - Filter by color, mood, or theme
 - 📁 **Custom Wallpaper Upload** - Upload and rotate your own images
 - 🎭 **Multiple Theme Presets** - Quick-switch between different aesthetic styles
-- ☁️ **Browser Sync** - Synchronize settings across devices
+- 🌗 **Dark Mode Support** - Automatic theme switching based on time or system settings
 
-### Won't Implement
+## [2.1.1] - 2025-10-XX
 
-- ❌ 30-minute refresh cycle - Staying with 6-hour cycle for better API efficiency and rate limit management
+### Added
 
-## [2.1.0] - 2025-10-XX
+#### 💾 **Permanent Cache Mode**
+
+- **User Control Over Cache Persistence**: Users can now choose to permanently store their cached wallpaper images
+- **Prevent Automatic Deletion**: When enabled, cached images are never automatically deleted during background refresh
+- **Growing Collection**: Cache grows over time as new images are fetched while preserving old favorites
+- **Manual Cache Management**:
+  - New "Force Refresh Cache" button in options page for manual cache refresh
+  - Users can clear cache completely when needed
+  - Full control over when to update image collection
+- **Enhanced Cache Statistics**:
+  - Visual indicators showing permanent cache status
+  - Clear distinction between valid and expired items
+  - Better understanding of cache size and storage usage
+- **User Guide Documentation**: Comprehensive guide (`docs/permanent-cache-user-guide.md`) with:
+  - Step-by-step setup instructions
+  - Best practices for different user types (collectors, automatic management, power users)
+  - FAQ and troubleshooting section
+  - Storage considerations and management tips
+
+#### � **Advanced Build System with Code Obfuscation**
+
+- **Multiple Build Flavors**: Users and developers can now build the extension with different code obfuscation levels
+- **Build Commands**:
+  - `npm run build` - Standard build (no obfuscation, fast development)
+  - `npm run build:obfuscated` - Basic obfuscated build
+  - `npm run build:light` - Light obfuscation (balanced readability vs protection)
+  - `npm run build:medium` - Medium obfuscation (recommended for production)
+  - `npm run build:heavy` - Heavy obfuscation (maximum code protection)
+  - `npm run build:fun` - Fun/experimental obfuscation level
+- **Use Cases**:
+  - **Development**: Standard build for debugging and development
+  - **Production**: Medium/heavy builds for distributed versions
+  - **Source Protection**: Obfuscation helps protect proprietary code modifications
+  - **Performance Testing**: Different levels allow testing impact on extension performance
+- **Dependencies**: Added `javascript-obfuscator` (v4.1.1) and `glob` (v11.0.3) for build enhancement
+
+#### 🎨 **Improved Options Page UX**
+
+- **Sticky Message Bar**: Success/error messages now stay fixed at the top of the page
+- **No More Scrolling**: Users no longer need to scroll back to the top to see save confirmations
+- **Better Visibility**: Messages remain visible while reviewing other settings
+- **Enhanced User Feedback**: Immediate visual confirmation of actions without navigation disruption
+- **Improved Workflow**: Save settings and continue editing without losing context
+
+### Changed
+
+#### 📁 **Codebase Organization**
+
+- **Modular Structure**: Split large files into smaller, focused modules
+- **Better Separation of Concerns**: Configuration data separated from application logic
+- **Easier Maintenance**: Improved readability and maintainability of code
+
+## [2.1.0] - 2025-10-10
 
 ### Added
 

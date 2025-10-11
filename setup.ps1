@@ -36,6 +36,46 @@ Write-Host ""
 Write-Host "✅ Dependencies installed!" -ForegroundColor Green
 Write-Host ""
 
+# Ask user for obfuscation level
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "🔒 Build Configuration" -ForegroundColor Yellow
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Select obfuscation level:" -ForegroundColor White
+Write-Host "  1) Regular (no obfuscation) - Recommended for development" -ForegroundColor Gray
+Write-Host "  2) Light - Basic obfuscation for testing" -ForegroundColor Gray
+Write-Host "  3) Medium - Balanced obfuscation" -ForegroundColor Gray
+Write-Host "  4) Heavy - Strong obfuscation" -ForegroundColor Gray
+Write-Host "  5) Fun - Maximum obfuscation with fun mode" -ForegroundColor Gray
+Write-Host ""
+$obfuscationChoice = Read-Host "Enter your choice (1-5, default: 1)"
+
+# Set obfuscation level based on user choice
+switch ($obfuscationChoice) {
+    "2" {
+        $env:OBFUSCATION_LEVEL = "light"
+        Write-Host "✅ Selected: Light obfuscation" -ForegroundColor Green
+    }
+    "3" {
+        $env:OBFUSCATION_LEVEL = "medium"
+        Write-Host "✅ Selected: Medium obfuscation" -ForegroundColor Green
+    }
+    "4" {
+        $env:OBFUSCATION_LEVEL = "heavy"
+        Write-Host "✅ Selected: Heavy obfuscation" -ForegroundColor Green
+    }
+    "5" {
+        $env:OBFUSCATION_LEVEL = "fun"
+        Write-Host "✅ Selected: Fun obfuscation (maximum + fun mode)" -ForegroundColor Green
+    }
+    default {
+        $env:OBFUSCATION_LEVEL = "regular"
+        Write-Host "✅ Selected: Regular build (no obfuscation)" -ForegroundColor Green
+    }
+}
+
+Write-Host ""
+
 # Build the extension
 Write-Host "🔨 Building extension..." -ForegroundColor Yellow
 npm run build
@@ -89,6 +129,30 @@ Write-Host "   • 20 fallback images included"
 Write-Host "   • Auto-refresh every 6 hours"
 Write-Host "   • Digital clock display"
 Write-Host "   • Configurable settings via Options page"
+Write-Host "   • Permanent cache mode for storing images forever"
+Write-Host "   • Optimized performance with smart caching"
+Write-Host ""
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "🔒 Build Information:" -ForegroundColor Yellow
+Write-Host "========================================" -ForegroundColor Cyan
+if ($env:OBFUSCATION_LEVEL -ne "regular") {
+    Write-Host "   • Obfuscation: $($env:OBFUSCATION_LEVEL)" -ForegroundColor Cyan
+    Write-Host "   • Code protection enabled for deployment" -ForegroundColor Green
+} else {
+    Write-Host "   • Standard build (readable source code)" -ForegroundColor Gray
+    Write-Host "   • Ideal for development and debugging" -ForegroundColor Gray
+}
+Write-Host ""
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "💡 Rebuild Tips:" -ForegroundColor Yellow
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "   To rebuild with different obfuscation:" -ForegroundColor White
+Write-Host "   Set OBFUSCATION_LEVEL environment variable:"
+Write-Host "     • `$env:OBFUSCATION_LEVEL='regular'; npm run build"
+Write-Host "     • `$env:OBFUSCATION_LEVEL='light'; npm run build"
+Write-Host "     • `$env:OBFUSCATION_LEVEL='medium'; npm run build"
+Write-Host "     • `$env:OBFUSCATION_LEVEL='heavy'; npm run build"
+Write-Host "     • `$env:OBFUSCATION_LEVEL='fun'; npm run build"
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "📚 Documentation:" -ForegroundColor Yellow
