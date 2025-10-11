@@ -1,4 +1,4 @@
-# Random Wa- 💾 **True Offline Mode**: Downloads and stores complete image blobs in IndexedDB (~160-400MB)
+# Random Wallpaper Extension
 
 - 🌐 **Works Without Internet**: All images cached locally, displays work completely offline
 - ⏳ **Auto Expiry**: Images expire after 24 hours to keep content fresh
@@ -35,6 +35,23 @@ npm install
 
 # Build the extension
 npm run build
+```
+
+or use build scripts (Windows)
+
+```powershell
+# command prompt / powershell
+setup.bat
+
+# or
+setup.ps1
+```
+
+(Linux/Mac users can use)
+
+```bash
+chmod +x setup.sh
+./setup.sh
 ```
 
 ### 2. Load in Browser

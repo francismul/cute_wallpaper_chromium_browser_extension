@@ -30,6 +30,45 @@ echo ""
 echo "✅ Dependencies installed!"
 echo ""
 
+# Ask user for obfuscation level
+echo "🔒 Build Configuration"
+echo "======================"
+echo ""
+echo "Select obfuscation level:"
+echo "  1) Regular (no obfuscation) - Recommended for development"
+echo "  2) Light - Basic obfuscation for testing"
+echo "  3) Medium - Balanced obfuscation"
+echo "  4) Heavy - Strong obfuscation"
+echo "  5) Fun - Maximum obfuscation with fun mode"
+echo ""
+read -p "Enter your choice (1-5, default: 1): " obfuscation_choice
+
+# Set obfuscation level based on user choice
+case "$obfuscation_choice" in
+    2)
+        export OBFUSCATION_LEVEL="light"
+        echo "✅ Selected: Light obfuscation"
+        ;;
+    3)
+        export OBFUSCATION_LEVEL="medium"
+        echo "✅ Selected: Medium obfuscation"
+        ;;
+    4)
+        export OBFUSCATION_LEVEL="heavy"
+        echo "✅ Selected: Heavy obfuscation"
+        ;;
+    5)
+        export OBFUSCATION_LEVEL="fun"
+        echo "✅ Selected: Fun obfuscation (maximum + fun mode)"
+        ;;
+    *)
+        export OBFUSCATION_LEVEL="regular"
+        echo "✅ Selected: Regular build (no obfuscation)"
+        ;;
+esac
+
+echo ""
+
 # Build the extension
 echo "🔨 Building extension..."
 npm run build
@@ -76,6 +115,25 @@ echo "   • 20 fallback images included"
 echo "   • Auto-refresh every 6 hours"
 echo "   • Digital clock display"
 echo "   • Configurable settings via Options page"
+echo "   • Permanent cache mode for storing images forever"
+echo "   • Optimized performance with smart caching"
+echo ""
+echo "🔒 Build Information:"
+if [ "$OBFUSCATION_LEVEL" != "regular" ]; then
+    echo "   • Obfuscation: $OBFUSCATION_LEVEL"
+    echo "   • Code protection enabled for deployment"
+else
+    echo "   • Standard build (readable source code)"
+    echo "   • Ideal for development and debugging"
+fi
+echo ""
+echo "💡 Tip: To rebuild with different obfuscation:"
+echo "   Set OBFUSCATION_LEVEL environment variable:"
+echo "   • OBFUSCATION_LEVEL=regular npm run build"
+echo "   • OBFUSCATION_LEVEL=light npm run build"
+echo "   • OBFUSCATION_LEVEL=medium npm run build"
+echo "   • OBFUSCATION_LEVEL=heavy npm run build"
+echo "   • OBFUSCATION_LEVEL=fun npm run build"
 echo ""
 echo "📚 Documentation:"
 echo "   • QUICKSTART.md - Quick setup guide"
