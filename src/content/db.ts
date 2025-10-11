@@ -660,6 +660,7 @@ export async function wasImageViewedRecently(
 /**
  * Get comprehensive database statistics
  * Useful for monitoring storage usage and performance
+ * Uses separate transactions for better concurrency and to avoid blocking
  * @returns Promise that resolves to database statistics object
  * @throws Error if database operation fails
  */
@@ -669,69 +670,79 @@ export async function getDatabaseStats(): Promise<{
   expiredImages: number;
   totalHistory: number;
 }> {
-  const db = await initDB();
-  const transaction = db.transaction([IMAGES_STORE_NAME, HISTORY_STORE_NAME], "readonly");
-  
-  const imagesStore = transaction.objectStore(IMAGES_STORE_NAME);
-  const historyStore = transaction.objectStore(HISTORY_STORE_NAME);
-  
   const now = Date.now();
 
-  return new Promise((resolve, reject) => {
-    const stats = {
-      totalImages: 0,
-      validImages: 0,
-      expiredImages: 0,
-      totalHistory: 0,
-    };
-
-    let pendingOperations = 3;
-
-    const checkComplete = () => {
-      pendingOperations--;
-      if (pendingOperations === 0) {
-        stats.expiredImages = stats.totalImages - stats.validImages;
-        db.close();
-        resolve(stats);
-      }
-    };
-
+  // Use separate transactions for better concurrency and to avoid blocking
+  const [totalImages, validImages, totalHistory] = await Promise.all([
     // Count total images
-    const totalImagesRequest = imagesStore.count();
-    totalImagesRequest.onsuccess = () => {
-      stats.totalImages = totalImagesRequest.result;
-      checkComplete();
-    };
-    totalImagesRequest.onerror = () => {
-      db.close();
-      reject(totalImagesRequest.error);
-    };
+    (async (): Promise<number> => {
+      const db = await initDB();
+      const transaction = db.transaction([IMAGES_STORE_NAME], "readonly");
+      const store = transaction.objectStore(IMAGES_STORE_NAME);
+
+      return new Promise((resolve, reject) => {
+        const request = store.count();
+        
+        request.onsuccess = () => {
+          db.close();
+          resolve(request.result);
+        };
+        
+        request.onerror = () => {
+          db.close();
+          reject(request.error);
+        };
+      });
+    })(),
 
     // Count valid images
-    const validImagesRequest = imagesStore.index("expiresAt").count(IDBKeyRange.lowerBound(now));
-    validImagesRequest.onsuccess = () => {
-      stats.validImages = validImagesRequest.result;
-      checkComplete();
-    };
-    validImagesRequest.onerror = () => {
-      db.close();
-      reject(validImagesRequest.error);
-    };
+    (async (): Promise<number> => {
+      const db = await initDB();
+      const transaction = db.transaction([IMAGES_STORE_NAME], "readonly");
+      const store = transaction.objectStore(IMAGES_STORE_NAME);
+      const index = store.index("expiresAt");
+
+      return new Promise((resolve, reject) => {
+        const request = index.count(IDBKeyRange.lowerBound(now));
+        
+        request.onsuccess = () => {
+          db.close();
+          resolve(request.result);
+        };
+        
+        request.onerror = () => {
+          db.close();
+          reject(request.error);
+        };
+      });
+    })(),
 
     // Count total history
-    const totalHistoryRequest = historyStore.count();
-    totalHistoryRequest.onsuccess = () => {
-      stats.totalHistory = totalHistoryRequest.result;
-      checkComplete();
-    };
-    totalHistoryRequest.onerror = () => {
-      db.close();
-      reject(totalHistoryRequest.error);
-    };
+    (async (): Promise<number> => {
+      const db = await initDB();
+      const transaction = db.transaction([HISTORY_STORE_NAME], "readonly");
+      const store = transaction.objectStore(HISTORY_STORE_NAME);
 
-    transaction.onerror = () => {
-      db.close();
-      reject(transaction.error);
-    };
-  });
+      return new Promise((resolve, reject) => {
+        const request = store.count();
+        
+        request.onsuccess = () => {
+          db.close();
+          resolve(request.result);
+        };
+        
+        request.onerror = () => {
+          db.close();
+          reject(request.error);
+        };
+      });
+    })(),
+  ]);
+
+  return {
+    totalImages,
+    validImages,
+    expiredImages: totalImages - validImages,
+    totalHistory,
+  };
 }

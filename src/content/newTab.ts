@@ -9,7 +9,7 @@ import {
   ImageData,
 } from "./db";
 import { getRandomIndex } from "../utils/random";
-import { REFRESH_INTERVAL_HOURS } from "../config/constants";
+import { REFRESH_INTERVAL_MS } from "../config/constants";
 import { getImagesWithFallback, getImageSourceStrategy } from "./fallback";
 
 /**
@@ -718,7 +718,7 @@ async function checkAndTriggerRefresh(): Promise<void> {
 
     const now = Date.now();
 
-    if (!lastFetch || now - lastFetch >= REFRESH_INTERVAL_HOURS) {
+    if (!lastFetch || now - lastFetch >= REFRESH_INTERVAL_MS) {
       console.log("⏰ Refresh overdue, notifying background worker...");
       chrome.runtime.sendMessage({ action: "checkRefreshNeeded" });
     }

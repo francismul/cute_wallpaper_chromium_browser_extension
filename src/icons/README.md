@@ -1,30 +1,26 @@
-# Extension Icons
+# Icon Placeholder
 
-This directory should contain the following icon files:
+The manifest.json requires icons in three sizes:
+- icon16.png (16x16)
+- icon48.png (48x48)  
+- icon128.png (128x128)
 
-## Required Icons:
-- `icon16.png` - 16x16 pixels (toolbar icon)
-- `icon32.png` - 32x32 pixels (Windows computers often require this size)
-- `icon48.png` - 48x48 pixels (extension management page)
-- `icon128.png` - 128x128 pixels (Chrome Web Store and installation dialog)
+You can:
+1. Create your own icons and place them in this folder
+2. Use an online tool like https://www.favicon-generator.org/
+3. Or use this simple SVG as a base:
 
-## Icon Design Guidelines:
-- Use bright, cute colors (pastels work well)
-- Include elements like flowers, hearts, or cute animals
-- Make sure the icon is recognizable at small sizes
-- Use PNG format with transparency
-- Follow Google's Material Design principles
+```svg
+<svg width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+  <rect width="128" height="128" fill="#4F46E5"/>
+  <path d="M 30 40 L 30 90 L 98 90 L 98 40 Z M 40 50 L 88 50 L 88 80 L 40 80 Z" fill="#fff"/>
+  <circle cx="50" cy="62" r="5" fill="#4F46E5"/>
+</svg>
+```
 
-## Suggested Design:
-A cute flower or heart shape with soft gradient colors from pink to purple, matching the extension's color scheme (#667eea to #764ba2).
+Convert this SVG to PNG at the required sizes and rename them accordingly.
 
-## Creating Icons:
-You can use tools like:
-- Adobe Illustrator/Photoshop
-- Figma
-- GIMP (free)
-- Online icon generators
-- AI image generators (like DALL-E, Midjourney)
-
-## For Development:
-You can temporarily use any 16x16, 32x32, 48x48, and 128x128 PNG images just to test the extension functionality.
+**Quick online tools:**
+- https://cloudconvert.com/svg-to-png
+- https://www.favicon-generator.org/
+- https://realfavicongenerator.net/

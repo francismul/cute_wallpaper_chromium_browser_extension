@@ -6,7 +6,7 @@
  */
 export function getRandomIndex(max: number): number {
   if (max <= 0) {
-    throw new Error("Max must be greater than 0");
+    throw new Error('Max must be greater than 0');
   }
 
   const randomBuffer = new Uint32Array(1);
